@@ -1,6 +1,10 @@
 import asyncio
+import csv
+from os.path import exists
+from datetime import date
 from pyppeteer import launch
 
+headers = ['date', 'store', 'product name', 'current price', 'reference price', 'url']
 
 class GenericScraper:
     """A GenericScaper is some kind of interface that specific webshop scrapers
@@ -52,6 +56,7 @@ class VandenborreScraper(GenericScraper):
         self.url = url
         par = await super().create(browser, url)
         self.page = par.page
+        self.filename = "vandenborre.csv"
         print(self.url)
         return self
 
@@ -72,7 +77,7 @@ class VandenborreScraper(GenericScraper):
         #await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
         # this gets every product information on the page
-        t = await self.page.querySelectorAllEval('div.product-container > div.product', """(nodes => nodes.map(n => {
+        products = await self.page.querySelectorAllEval('div.product-container > div.product', """(nodes => nodes.map(n => {
             let ob = {}
             ob.name = n.querySelector(".productname").innerText
             if (n.querySelector(".reference")) {
@@ -86,7 +91,16 @@ class VandenborreScraper(GenericScraper):
             return ob
         }))""")
         await self.page.screenshot({'path': 'vdb.png', 'fullPage': True})
-        return t
+        today = date.today()
+        if not exists(self.filename):
+            with open(self.filename, 'x+') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(headers)
+        with open(self.filename, 'a+', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            for product in products:
+                csv_writer.writerow([today, 'vandenborre', product['name'], product['price_current'], product['price_reference'], self.url])
+
 
 
 
@@ -97,7 +111,6 @@ async def main():
     browser = await launch()
     vdb = await VandenborreScraper.create(browser, "https://www.vandenborre.be/fr/gsm-smartphone/smartphone")
     r = await vdb.scrape()
-    print(r)
     await browser.close()
 
 asyncio.get_event_loop().run_until_complete(main())
