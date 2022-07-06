@@ -1,5 +1,4 @@
 import csv
-import pandas as pd
 import json
 
 file_name = 'vandenborre'
