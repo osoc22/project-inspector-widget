@@ -3,6 +3,7 @@ import csv
 from os.path import exists
 import datetime
 import time
+from PIL import Image
 from pyppeteer import launch
 
 OUTPUT_PATH = 'output/'
@@ -77,10 +78,10 @@ class VandenborreScraper(GenericScraper):
             }));
         }""")
 
-        # await self.page.select('select[name="COUNTPERPAGE"', '0')
+        await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
         # this gets every product information on the page
-
+        await self.page.screenshot({'path': OUTPUT_PATH+'ttt.png', 'fullPage': True})
         products_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         product_informations = []
@@ -103,11 +104,12 @@ class VandenborreScraper(GenericScraper):
             timestamp = str(time.time_ns())
             # user's excel language need to be english for this to work?
             p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
+            coords = await product_node.boundingBox()
+            p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
+            p_i['timestamp'] = timestamp
             product_informations.append(p_i)
-            # print(await product_node.boundingBox())
-            # await self.page.screenshot({'path': 'ttt.png', 'fullPage': True})
-            await self.page.screenshot({'path' : OUTPUT_PATH+timestamp + '.png', 'clip': await product_node.boundingBox()})
-
+        
+        get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations)
         today = datetime.date.today()
         if not exists(OUTPUT_PATH+self.filename):
             with open(OUTPUT_PATH+self.filename, 'x+') as csv_file:
@@ -118,6 +120,16 @@ class VandenborreScraper(GenericScraper):
             for product in product_informations:
                 csv_writer.writerow([today, 'vandenborre', product['name'], product['price_current'], product['price_reference'], product['image']])
 
+
+def get_products_from_screenshot(img_source, product_data):
+    try:
+        with Image.open(img_source) as im:
+            for product in product_data:
+                region = im.crop(product['coords'])
+                region.save(OUTPUT_PATH+product['timestamp']+'.png')
+    except OSError:
+        print("oh oh")
+        pass
 
 
 
