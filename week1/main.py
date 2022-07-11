@@ -1,7 +1,8 @@
 import asyncio
 import csv
 from os.path import exists
-from datetime import date
+import datetime
+import time
 from pyppeteer import launch
 
 headers = ['date', 'store', 'product name', 'current price', 'reference price', 'url']
@@ -77,6 +78,26 @@ class VandenborreScraper(GenericScraper):
         #await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
         # this gets every product information on the page
+
+        products_nodes = await self.page.querySelectorAll('div.product-container > div.product')
+
+        for product_node in products_nodes:
+            # p_i = product_node.evaluate("""(n) => {
+            #     let ob = {}
+            #     ob.name = n.querySelector(".productname").innerText
+            #     if (n.querySelector(".reference")) {
+            #         ob.price_reference = Number(n.querySelector(".reference").innerText.replace(",", ".").replace(/€\xa0/g, ""))
+            #         ob.price_current = Number(n.querySelector(".current").innerText.replace(",", ".").replace(/€\xa0/g, ""))
+            #     } else {
+            #         let price = Number(n.querySelector(".current").innerText.replace(",", ".").replace(/€\xa0/g, ""))
+            #         ob.price_reference = price
+            #         ob.price_current = price
+            #     }
+            #     return ob
+            # }
+            # """)
+            await self.page.screenshot({'path' : str(time.time_ns()) + '.png', 'clip': await product_node.boundingBox()})
+
         products = await self.page.querySelectorAllEval('div.product-container > div.product', """(nodes => nodes.map(n => {
             let ob = {}
             ob.name = n.querySelector(".productname").innerText
@@ -90,8 +111,8 @@ class VandenborreScraper(GenericScraper):
             }
             return ob
         }))""")
-        await self.page.screenshot({'path': 'vdb.png', 'fullPage': True})
-        today = date.today()
+        #await self.page.screenshot({'path': str(time.time_ns()) + '.png', 'fullPage': True})
+        today = datetime.date.today()
         if not exists(self.filename):
             with open(self.filename, 'x+') as csv_file:
                 csv_writer = csv.writer(csv_file)
