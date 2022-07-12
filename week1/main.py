@@ -72,7 +72,6 @@ class VandenborreScraper(GenericScraper):
         # this clicks the "OK" button on the popup asking us for cookies
         await self.page.evaluate("""() => {
             document.getElementById("onetrust-accept-btn-handler").dispatchEvent(new MouseEvent("click", {
-                bubbles: true,
                 cancelable: true,
                 view: window
             }));
@@ -107,21 +106,36 @@ class VandenborreScraper(GenericScraper):
             coords = await product_node.boundingBox()
             p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
             p_i['timestamp'] = timestamp
-            product_informations.append(p_i)
-        
+            product_informations.append(p_i)        
         get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations)
-        today = datetime.date.today()
-        if not exists(OUTPUT_PATH+self.filename):
-            with open(OUTPUT_PATH+self.filename, 'x+') as csv_file:
-                csv_writer = csv.writer(csv_file, delimiter=';')
-                csv_writer.writerow(headers)
-        with open(OUTPUT_PATH+self.filename, 'a+', newline='') as csv_file:
+        output_data_to_file(OUTPUT_PATH+self.filename, product_informations)       
+
+
+def output_data_to_file(filename, data):
+    """Writes scraped product data to an csv file.
+
+    Args:
+        filename (str): filename to output the data to.
+        data (list): basically everything that is supposed to go into the file
+    """
+    today = datetime.date.today()
+    if not exists(OUTPUT_PATH+filename):
+        with open(OUTPUT_PATH+filename, 'x+', newline='', encoding='utf-8') as csv_file:
             csv_writer = csv.writer(csv_file, delimiter=';')
-            for product in product_informations:
-                csv_writer.writerow([today, 'vandenborre', product['name'], product['price_current'], product['price_reference'], product['image']])
+            csv_writer.writerow(headers)
+    with open(OUTPUT_PATH+filename, 'a+', newline='', encoding='utf-8') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=';')
+        for product in data:
+            csv_writer.writerow([today, 'vandenborre', product['name'], product['price_current'], product['price_reference'], product['image']])
 
 
 def get_products_from_screenshot(img_source, product_data):
+    """Cuts each individual product from the big screenshot of the page.
+
+    Args:
+        img_source (str): path to the image to cut.
+        product_data (list): information about the products so that we can cut accordingly.
+    """
     try:
         with Image.open(img_source) as im:
             for product in product_data:
