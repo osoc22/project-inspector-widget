@@ -1,2 +1,3 @@
 /venv
-flask/database.conf
+.env
+__pycache__/

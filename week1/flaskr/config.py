@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 if not os.environ["DATABASE_URL"]:
     raise RuntimeError("DATABASE_URL is not set")
