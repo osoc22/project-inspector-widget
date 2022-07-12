@@ -5,6 +5,7 @@ import datetime
 import time
 from PIL import Image
 from pyppeteer import launch
+import click
 
 OUTPUT_PATH = 'output/'
 
@@ -108,7 +109,7 @@ class VandenborreScraper(GenericScraper):
             p_i['timestamp'] = timestamp
             product_informations.append(p_i)        
         get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations)
-        output_data_to_file(OUTPUT_PATH+self.filename, product_informations)       
+        output_data_to_file(self.filename, product_informations)       
 
 
 def output_data_to_file(filename, data):
@@ -147,13 +148,27 @@ def get_products_from_screenshot(img_source, product_data):
 
 
 
-async def main():
-    """Crates a new scraper (Vandenborre here) and starts scraping it
+async def main(url):
+    """Creates an appropriate scraper from the url given and starts scraping away.
+
+    Args:
+        url (str): the url of the webshop to scrape.
     """
-    # launches the browser
     browser = await launch()
-    vdb = await VandenborreScraper.create(browser, "https://www.vandenborre.be/fr/gsm-smartphone/smartphone")
-    r = await vdb.scrape()
+    scraper = None
+    if ('vandenborre.be' in url):
+        scraper = await VandenborreScraper.create(browser, url)
+    else:
+        print('webshop not supported')
+        await browser.close()
+        exit(0)
+    await scraper.scrape()
     await browser.close()
 
-asyncio.get_event_loop().run_until_complete(main())
+@click.command()
+@click.argument('url')
+def start(url):
+    asyncio.run(main(url))
+
+if __name__ == '__main__':
+    start()
