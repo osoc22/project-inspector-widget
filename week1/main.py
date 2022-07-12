@@ -6,6 +6,7 @@ import time
 from PIL import Image
 from pyppeteer import launch
 import click
+from price_parser import Price
 
 OUTPUT_PATH = 'output/'
 
@@ -91,10 +92,10 @@ class VandenborreScraper(GenericScraper):
                 let ob = {}
                 ob.name = n.querySelector(".productname").innerText
                 if (n.querySelector(".reference")) {
-                    ob.price_reference = Number(n.querySelector(".reference").innerText.replace(",", ".").replace(/€\xa0/g, ""))
-                    ob.price_current = Number(n.querySelector(".current").innerText.replace(",", ".").replace(/€\xa0/g, ""))
+                    ob.price_reference = n.querySelector(".reference").innerText
+                    ob.price_current = n.querySelector(".current").innerText
                 } else {
-                    let price = Number(n.querySelector(".current").innerText.replace(",", ".").replace(/€\xa0/g, ""))
+                    let price = n.querySelector(".current").innerText
                     ob.price_reference = price
                     ob.price_current = price
                 }
@@ -102,6 +103,8 @@ class VandenborreScraper(GenericScraper):
             }
             """, product_node)
             timestamp = str(time.time_ns())
+            p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
+            p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
             # user's excel language need to be english for this to work?
             p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
             coords = await product_node.boundingBox()
