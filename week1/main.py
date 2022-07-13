@@ -133,33 +133,53 @@ class X2OScraper(GenericScraper):
 
     async def scrape(self):
         product_informations = []
+        await self.page.setViewport({
+            'width': 1920,
+            'height': 5000
+        })
         await self.go_to_page(self.url)
-        await self.page.waitForSelector('div[class^="gallery-root-"]')
-        await self.page.screenshot({'path': OUTPUT_PATH+'tttt.png', 'fullPage': True})
-        product_nodes = await self.page.querySelectorAll('div.gallery-item')
-        for product_node in product_nodes:
-            p_i = await self.page.evaluate("""(n) => {
-                let ob = {}
-                ob.name = n.querySelector('a[class^="item-nameWrapper-"]').innerText
-                ob.price_current = n.querySelector('span[class^="price-"]').innerText
-                if (n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]')) {
-                    ob.price_reference = n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]').innerText
-                } else {
-                    ob.price_reference = ob.price_current
+        page_nbr = 0
+        next_page_nbr = 1
+        while (page_nbr < next_page_nbr):
+            page_nbr = next_page_nbr
+            await self.page.waitForSelector('div[class^="gallery-root-"]')
+            await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr), 'fullPage': True})
+            product_nodes = await self.page.querySelectorAll('div.gallery-item')
+            for product_node in product_nodes:
+                p_i = await self.page.evaluate("""(n) => {
+                    let ob = {}
+                    ob.name = n.querySelector('a[class^="item-nameWrapper-"]').innerText
+                    ob.price_current = n.querySelector('span[class^="price-"]').innerText
+                    if (n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]')) {
+                        ob.price_reference = n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]').innerText
+                    } else {
+                        ob.price_reference = ob.price_current
+                    }
+                    return ob
+                }""", product_node)
+                timestamp = str(time.time_ns())
+                p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
+                p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
+                # user's excel language need to be english for this to work?
+                p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
+                coords = await product_node.boundingBox()
+                p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
+                p_i['timestamp'] = timestamp
+                product_informations.append(p_i)
+            get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations)
+            output_data_to_file(self.filename, product_informations)
+            arrows = await self.page.querySelectorAll('a[class^=navButton-buttonArrow]')
+            for arrow in arrows:
+                nbr = await self.page.evaluate("""(a) => {
+                    return Number(a.href.match(/=(\d+$)/)[1])
                 }
-                return ob
-            }""", product_node)
-            timestamp = str(time.time_ns())
-            p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
-            p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
-            # user's excel language need to be english for this to work?
-            p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
-            coords = await product_node.boundingBox()
-            p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
-            p_i['timestamp'] = timestamp
-            product_informations.append(p_i)
-        get_products_from_screenshot(OUTPUT_PATH+'tttt.png', product_informations)
-        output_data_to_file(self.filename, product_informations)
+                """, arrow)
+                next_page_nbr = nbr if next_page_nbr < nbr else next_page_nbr
+            if page_nbr < next_page_nbr:
+                await self.page.evaluate("""() => {
+                    let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
+                    arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
+                }""")
 
 def output_data_to_file(filename, data):
     """Writes scraped product data to an csv file.
@@ -222,4 +242,5 @@ def start(url):
     asyncio.run(main(url))
 
 if __name__ == '__main__':
+    # pylint: disable=no-value-for-parameter
     start()
