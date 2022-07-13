@@ -24,7 +24,7 @@
 * Head over to `http://localhost:5000`
 
 
-### To run on docker
+### To run services as a docker
 * Set environment variables
     
     ```cp .env.example .env```
@@ -39,18 +39,6 @@
 
 * Head over to `http://localhost:5000`
 
-### To run **a particular service** as a container
-
-* To run flask application
-
-     ```docker-compose start flask_app  ```
-
-* To run postgres database
-
-    ```docker-compose start postgres  ```
-
-
-## Database models 📈
 
 There are mainly four models 
 

@@ -5,7 +5,7 @@ services:
         container_name: flask_app
         env_file: ./.env
         build:
-            dockerfile: ../Dockerfile
+            dockerfile: ./Dockerfile
         image: flask_app:latest
         links:
         - postgres
