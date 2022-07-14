@@ -21,7 +21,7 @@
 
   ```flask run```
 
-* Head over to `http://localhost:5000`
+* Head over to `http://localhost:8500`
 
 
 ### To run services as a docker container
@@ -37,7 +37,7 @@
 
     ```docker-compose up -d```
 
-* Head over to `http://localhost:5000`
+* Head over to `http://localhost:8500`
 
 ### To run **a particular service** as a docker container
 
@@ -48,6 +48,8 @@
 * To run postgres database (Do not forget to upgrade database scheme, if needed)
 
     ```docker-compose up -d postgres  ```
+
+## Data Models 📈
 
 There are mainly four models 
 

@@ -4,7 +4,6 @@ import json
 from flask import request
 import os
 
-
 app = create_app()
 
 @app.route('/') 
@@ -13,14 +12,14 @@ def index():
 
 @app.route('/start-scraper') 
 def start_scraper():
-     # Get url from user
+     # url = request.data.url
      url = "https://www.vandenborre.be/fr/gsm-smartphone/smartphone"
-     cmd = 'python ../main.py %s'.format(url)
+     cmd = f'python main.py {url}'
      os.system(cmd)
-
+     
      return "It worked"
 
-@app.route('/products', methods=["POST"])
+@app.route('/products', methods=["POST"]) # This function will be called inside scraper
 def add_products():
     products = request.json
 
@@ -47,7 +46,7 @@ def add_products():
 
     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
          
-@app.route('/products', methods=["GET"])
+@app.route('/products', methods=["GET"]) # this function will be called on start scraper requesy
 def get_products():
      products = []
 

@@ -2,15 +2,15 @@
 version: "3.7"
 services:
     flask_app:
-        container_name: flask_app
-        env_file: ./.env
-        build:
-            dockerfile: ./Dockerfile
-        image: flask_app:latest
-        links:
+      image: flask_app:latest
+      container_name: flask_app
+      env_file: ./.env
+      build:
+        dockerfile: ./Dockerfile
+      links:
         - postgres
-        ports:
-        - "5000:5000"
+      ports:
+        - "8500:8500"
    
     postgres:
       image: postgres:latest
