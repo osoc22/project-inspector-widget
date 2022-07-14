@@ -21,4 +21,6 @@ COPY . /flaskr
 
 EXPOSE 8500
 
+CMD flask db upgrade
+
 ENTRYPOINT flask run --host='0.0.0.0'
