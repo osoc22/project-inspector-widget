@@ -10,7 +10,7 @@ services:
         links:
         - postgres
         ports:
-        - "5000:5000"
+        - "8500:8500"
    
     postgres:
       image: postgres:latest

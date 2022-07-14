@@ -19,6 +19,6 @@ RUN pip install -r requirements.txt
 # copy project
 COPY . /flaskr
 
-EXPOSE 5000
+EXPOSE 8500
 
 ENTRYPOINT flask run --host='0.0.0.0'
