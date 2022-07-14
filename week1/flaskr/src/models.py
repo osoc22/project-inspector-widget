@@ -65,7 +65,13 @@ class Screenshot(db.Model):
     __tablename__ = 'screenshots'
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False, unique=True)
     screenshot_file = db.Column(db.Text, nullable=False)
+
+    
+    @classmethod
+    def find_by_name(cls, name: str):
+        return cls.query.filter_by(name=name).first()
 
     @classmethod
     def find_all(cls):
@@ -111,3 +117,15 @@ class Product(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
+    
+    def serialize(self):
+       return {
+            'id': self.id,
+            'name': self.name,
+            'article_number': self.article_number,
+            'price_current': self.price_current,
+            'price_reference': self.price_reference,
+            'screenshot': self.screenshot.name,
+            'webshop': self.webshop.name,
+            'date': self.date.strftime("%d-%m-%Y, %H:%M:%S")
+       }
