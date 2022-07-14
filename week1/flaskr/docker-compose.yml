@@ -9,19 +9,21 @@ services:
         dockerfile: ./Dockerfile
       links:
         - postgres
+      depends_on:
+        - postgres
       ports:
-        - "8500:8500"
+        - 8500:8500
    
     postgres:
       image: postgres:latest
       env_file: ./.env
       volumes:
-          - postgres:/var/lib/postgresql/data
+        - postgres:/var/lib/postgresql/data
       restart: always
       ports:
-          - 5432:5432
+        - 5432:5432
       networks:
-          - default
+        - default
 volumes:
     postgres:
         name: inspectordb

@@ -19,6 +19,8 @@ RUN pip install -r requirements.txt
 # copy project
 COPY . /flaskr
 
-EXPOSE 5000
+EXPOSE 8500
+
+CMD flask db upgrade
 
 ENTRYPOINT flask run --host='0.0.0.0'
