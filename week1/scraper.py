@@ -1,12 +1,16 @@
 import asyncio
+import base64
 import csv
+import json
 from os.path import exists
 import datetime
 import time
+from io import BytesIO
 from PIL import Image
 from pyppeteer import launch
 import click
 from price_parser import Price
+import requests
 
 OUTPUT_PATH = 'output/'
 
@@ -90,7 +94,7 @@ class VandenborreScraper(GenericScraper):
         for product_node in products_nodes:
             p_i = await self.page.evaluate("""(n) => {
                 let ob = {}
-                ob.name = n.querySelector(".productname").innerText
+                ob.product_name = n.querySelector(".productname").innerText
                 if (n.querySelector(".reference")) {
                     ob.price_reference = n.querySelector(".reference").innerText
                     ob.price_current = n.querySelector(".current").innerText
@@ -105,14 +109,16 @@ class VandenborreScraper(GenericScraper):
             timestamp = str(time.time_ns())
             p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
             p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
+            p_i['webshop'] = 'vandenborre'
             # user's excel language need to be english for this to work?
             p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
             coords = await product_node.boundingBox()
             p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
             p_i['timestamp'] = timestamp
             product_informations.append(p_i)
-        get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations)
+        get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations, False)
         output_data_to_file(self.filename, product_informations)
+        return product_informations
 
 class X2OScraper(GenericScraper):
     """A scraper for the X2O webshop
@@ -141,14 +147,15 @@ class X2OScraper(GenericScraper):
         page_nbr = 0
         next_page_nbr = 1
         while (page_nbr < next_page_nbr):
+            time.sleep(1)
             page_nbr = next_page_nbr
             await self.page.waitForSelector('div[class^="gallery-root-"]')
-            await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr), 'fullPage': True})
+            await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
                 p_i = await self.page.evaluate("""(n) => {
                     let ob = {}
-                    ob.name = n.querySelector('a[class^="item-nameWrapper-"]').innerText
+                    ob.product_name = n.querySelector('a[class^="item-nameWrapper-"]').innerText
                     ob.price_current = n.querySelector('span[class^="price-"]').innerText
                     if (n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]')) {
                         ob.price_reference = n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]').innerText
@@ -160,13 +167,14 @@ class X2OScraper(GenericScraper):
                 timestamp = str(time.time_ns())
                 p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
                 p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
+                p_i['webshop'] = 'x2o'
                 # user's excel language need to be english for this to work?
                 p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
                 coords = await product_node.boundingBox()
                 p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
                 p_i['timestamp'] = timestamp
                 product_informations.append(p_i)
-            get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations)
+            get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:], False)
             output_data_to_file(self.filename, product_informations)
             arrows = await self.page.querySelectorAll('a[class^=navButton-buttonArrow]')
             for arrow in arrows:
@@ -180,6 +188,31 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
+        return product_informations
+
+def output_data_to_endpoint(shop, data):
+    today = datetime.date.today()
+    for d in data:
+        data["date"] = today
+        data["image"] = data.pop("timestamp")
+        data["webshop"] = shop
+    res = requests.post("http://localhost:5000/products", json=json.dumps(data))
+    
+def output_screenshot_to_endpoint(img_source, product_data):
+    payload = []
+    try:
+        with Image.open(img_source) as im:
+            for product in product_data:
+                buffer = BytesIO()
+                region = im.crop(product['coords'])
+                region.save(buffer, fomart="PNG")
+                buffer.seek(0)
+                payload.append({"id":product_data["timestamp"], "image": base64.b64encode(buffer).decode()})
+        res = requests.post("http://localhost:5000/products", json=json.dumps(payload))
+    except OSError:
+        print("oh oh")
+        pass
+
 
 def output_data_to_file(filename, data):
     """Writes scraped product data to an csv file.
@@ -196,10 +229,10 @@ def output_data_to_file(filename, data):
     with open(OUTPUT_PATH+filename, 'a+', newline='', encoding='utf-8') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';')
         for product in data:
-            csv_writer.writerow([today, 'vandenborre', product['name'], product['price_current'], product['price_reference'], product['image']])
+            csv_writer.writerow([today, 'vandenborre', product['product_name'], product['price_current'], product['price_reference'], product['image']])
 
 
-def get_products_from_screenshot(img_source, product_data):
+def get_products_from_screenshot(img_source, product_data, saveImg=True):
     """Cuts each individual product from the big screenshot of the page.
 
     Args:
@@ -210,7 +243,14 @@ def get_products_from_screenshot(img_source, product_data):
         with Image.open(img_source) as im:
             for product in product_data:
                 region = im.crop(product['coords'])
-                region.save(OUTPUT_PATH+product['timestamp']+'.png')
+                if saveImg:
+                    region.save(OUTPUT_PATH+product['timestamp']+'.png')
+                else:
+                    buffer = BytesIO()
+                    region.save(buffer, fomart="PNG")
+                    buffer.seek(0)
+                    product["screenshot"] = base64.b64encode(buffer).decode()
+                    product["screenshot_id"] = product["timestamp"]
     except OSError:
         print("oh oh")
         pass
@@ -233,8 +273,9 @@ async def main(url):
         print('webshop not supported')
         await browser.close()
         exit(0)
-    await scraper.scrape()
+    ret = await scraper.scrape()
     await browser.close()
+    return ret
 
 @click.command()
 @click.argument('url')
