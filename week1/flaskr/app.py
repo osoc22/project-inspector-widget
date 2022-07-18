@@ -6,22 +6,28 @@ import os
 
 app = create_app()
 
+
 @app.route('/') 
 def index():  
      return "Welcome to the backend server"
 
-@app.route('/start-scraper') 
+
+output = []
+
+@app.route('/start-scraper', methods=["POST"]) 
 def start_scraper():
-     # url = request.data.url
-     url = "https://www.vandenborre.be/fr/gsm-smartphone/smartphone"
-     cmd = f'python main.py {url}'
+     data = json.loads(request.data)
+     url = data['url']
+     cmd = f'python scraper.py {url}'
      os.system(cmd)
-     
-     return "It worked"
+
+     return json.dumps(output)
+
+
 
 @app.route('/products', methods=["POST"]) # This function will be called inside scraper
 def add_products():
-    products = request.json
+    products = json.loads(request.json)
 
     for product in products:
          webshop_name = product['webshop']
@@ -30,23 +36,31 @@ def add_products():
                webshop = WebShop(name=webshop_name)
                webshop.save_to_db()
                
-         screenshot_name = str(product['screenshot'])
+         screenshot_name = str(product['screenshot_id'])
          screenshot = Screenshot.find_by_name(screenshot_name)
 
          if not screenshot:
-               screenshot = Screenshot(name=screenshot_name, screenshot_file="This is a test")
+               screenshot = Screenshot(name=screenshot_name, screenshot_file=product["screenshot"])
                screenshot.save_to_db()
           
          product['webshop'] = webshop
          product['screenshot'] = screenshot
+      
 
-         p = Product(**product)
-     
-         p.save_to_db()
+         p = Product.query.filter_by(
+               name = product['product_name'],
+               webshop = product['webshop']).first()
+         
+         if not p:
+              p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], screenshot=product['screenshot'], webshop=product['webshop'], date="2022-07-13 11:13:20")
+              p.save_to_db()
+          
+         output.append(p.serialize())
 
     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
-         
-@app.route('/products', methods=["GET"]) # this function will be called on start scraper requesy
+
+
+@app.route('/products', methods=["GET"])
 def get_products():
      products = []
 

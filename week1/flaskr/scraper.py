@@ -118,6 +118,7 @@ class VandenborreScraper(GenericScraper):
             product_informations.append(p_i)
         get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations, False)
         output_data_to_file(self.filename, product_informations)
+        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         return product_informations
 
 class X2OScraper(GenericScraper):
@@ -188,6 +189,7 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
+        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         return product_informations
 
 def output_data_to_endpoint(shop, data):
