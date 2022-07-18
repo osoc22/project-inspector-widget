@@ -1,5 +1,5 @@
 # pull official base image
-FROM --platform=linux/amd64 python:3.10-bullseye
+FROM python:3.10-bullseye
 
 RUN mkdir /flaskr
 
@@ -31,6 +31,6 @@ COPY . /flaskr
 
 EXPOSE 8500
 
-CMD flask db upgrade
-
-ENTRYPOINT flask run --host='0.0.0.0'
+# Run commands at start up
+RUN chmod u+x ./docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
