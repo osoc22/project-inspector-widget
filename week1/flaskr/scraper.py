@@ -266,9 +266,11 @@ async def main(url):
         url (str): the url of the webshop to scrape.
     """
     browser = await launch({
-        'autoClose': False
+        'autoClose': False,
+        'executablePath': '/usr/bin/google-chrome-stable',
+        'args': ["--no-sandbox"],
     })
-    
+
     scraper = None
     if ('vandenborre.be' in url):
         scraper = await VandenborreScraper.create(browser, url)
