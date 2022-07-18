@@ -109,14 +109,16 @@ class VandenborreScraper(GenericScraper):
             timestamp = str(time.time_ns())
             p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
             p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
+            p_i['webshop'] = 'vandenborre'
             # user's excel language need to be english for this to work?
             p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
             coords = await product_node.boundingBox()
             p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
             p_i['timestamp'] = timestamp
             product_informations.append(p_i)
-        get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations)
+        get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations, False)
         output_data_to_file(self.filename, product_informations)
+        return product_informations
 
 class X2OScraper(GenericScraper):
     """A scraper for the X2O webshop
@@ -165,13 +167,14 @@ class X2OScraper(GenericScraper):
                 timestamp = str(time.time_ns())
                 p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
                 p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
+                p_i['webshop'] = 'x2o'
                 # user's excel language need to be english for this to work?
                 p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
                 coords = await product_node.boundingBox()
                 p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
                 p_i['timestamp'] = timestamp
                 product_informations.append(p_i)
-            get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:])
+            get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:], False)
             output_data_to_file(self.filename, product_informations)
             arrows = await self.page.querySelectorAll('a[class^=navButton-buttonArrow]')
             for arrow in arrows:
@@ -185,6 +188,7 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
+        return product_informations
 
 def output_data_to_endpoint(shop, data):
     today = datetime.date.today()
@@ -228,7 +232,7 @@ def output_data_to_file(filename, data):
             csv_writer.writerow([today, 'vandenborre', product['product_name'], product['price_current'], product['price_reference'], product['image']])
 
 
-def get_products_from_screenshot(img_source, product_data):
+def get_products_from_screenshot(img_source, product_data, saveImg=True):
     """Cuts each individual product from the big screenshot of the page.
 
     Args:
@@ -239,7 +243,14 @@ def get_products_from_screenshot(img_source, product_data):
         with Image.open(img_source) as im:
             for product in product_data:
                 region = im.crop(product['coords'])
-                region.save(OUTPUT_PATH+product['timestamp']+'.png')
+                if saveImg:
+                    region.save(OUTPUT_PATH+product['timestamp']+'.png')
+                else:
+                    buffer = BytesIO()
+                    region.save(buffer, fomart="PNG")
+                    buffer.seek(0)
+                    product["screenshot"] = base64.b64encode(buffer).decode()
+                    product["screenshot_id"] = product["timestamp"]
     except OSError:
         print("oh oh")
         pass
@@ -262,8 +273,9 @@ async def main(url):
         print('webshop not supported')
         await browser.close()
         exit(0)
-    await scraper.scrape()
+    ret = await scraper.scrape()
     await browser.close()
+    return ret
 
 @click.command()
 @click.argument('url')
