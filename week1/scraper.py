@@ -257,9 +257,9 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
                     region.save(OUTPUT_PATH+product['timestamp']+'.png')
                 else:
                     buffer = BytesIO()
-                    region.save(buffer, fomart="PNG")
+                    region.save(buffer, format="PNG")
                     buffer.seek(0)
-                    product["screenshot"] = base64.b64encode(buffer).decode()
+                    product["screenshot"] = base64.b64encode(buffer.getvalue()).decode()
                     product["screenshot_id"] = product["timestamp"]
     except OSError:
         print("oh oh")
