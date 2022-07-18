@@ -1,7 +1,7 @@
 from . import create_app
 from .src.models import Product, WebShop, Screenshot
 import json
-from flask import request
+from flask import request, Response
 import os
 
 app = create_app()
@@ -40,12 +40,35 @@ def add_products():
          product['webshop'] = webshop
          product['screenshot'] = screenshot
 
-         p = Product(**product)
-     
-         p.save_to_db()
+
+          # check if p is today
+         p = Product.query.filter_by(
+               name = product['name'],
+               webshop = product['webshop']).first()
+         
+         if not p:
+              p = Product(**product)
+              p.save_to_db()
 
     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
-         
+
+
+@app.route("/get-csv")
+def get_csv():
+    # with open("outputs/Adjacency.csv") as fp:
+    #     csv = fp.read()
+    csv = '1,2,3\n4,5,6\n'
+
+    return Response(
+        csv,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=mytest.csv"})
+
+
+app.run(debug=True)
+
+
 @app.route('/products', methods=["GET"]) # this function will be called on start scraper requesy
 def get_products():
      products = []
