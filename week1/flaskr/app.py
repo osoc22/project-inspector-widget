@@ -14,10 +14,10 @@ def index():
 
 output = []
 
-@app.route('/start-scraper')
+@app.route('/start-scraper', methods=["POST"]) 
 def start_scraper():
-     # url = request.data.url
-     url = "https://www.vandenborre.be/gsm-smartphone/gsm"
+     data = json.loads(request.data)
+     url = data['url']
      cmd = f'python scraper.py {url}'
      os.system(cmd)
 
