@@ -85,13 +85,11 @@ class VandenborreScraper(GenericScraper):
 
         await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
- 
         # this gets every product information on the page
-        # await self.page.screenshot({'path': OUTPUT_PATH+'ttt.png', 'fullPage': True})
+        await self.page.screenshot({'path': OUTPUT_PATH+'ttt.png', 'fullPage': True})
         products_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         product_informations = []
-    
 
         for product_node in products_nodes:
             p_i = await self.page.evaluate("""(n) => {
@@ -109,7 +107,6 @@ class VandenborreScraper(GenericScraper):
             }
             """, product_node)
             timestamp = str(time.time_ns())
-            print(product_informations)
             p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
             p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
             p_i['webshop'] = 'vandenborre'
@@ -121,6 +118,7 @@ class VandenborreScraper(GenericScraper):
             product_informations.append(p_i)
         get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations, False)
         output_data_to_file(self.filename, product_informations)
+        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         return product_informations
 
 class X2OScraper(GenericScraper):
@@ -168,17 +166,14 @@ class X2OScraper(GenericScraper):
                     return ob
                 }""", product_node)
                 timestamp = str(time.time_ns())
-                p_i['webshop'] = "vandenborre"
                 p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
                 p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
                 p_i['webshop'] = 'x2o'
                 # user's excel language need to be english for this to work?
-                p_i['screenshot'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
+                p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
                 coords = await product_node.boundingBox()
                 p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
                 p_i['timestamp'] = timestamp
-
-                output_product_to_db(p_i)
                 product_informations.append(p_i)
             get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:], False)
             output_data_to_file(self.filename, product_informations)
@@ -194,6 +189,7 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
+        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         return product_informations
 
 def output_data_to_endpoint(shop, data):
@@ -220,10 +216,6 @@ def output_screenshot_to_endpoint(img_source, product_data):
         pass
 
 
-def output_product_to_db(product):
-    pass
-
-    
 def output_data_to_file(filename, data):
     """Writes scraped product data to an csv file.
 
