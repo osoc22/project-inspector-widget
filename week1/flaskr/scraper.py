@@ -267,7 +267,7 @@ async def main(url):
     """
     browser = await launch({
         'autoClose': False,
-        'executablePath': '/usr/bin/google-chrome-stable',
+        'executablePath': '/usr/bin/chromium',
         'args': ["--no-sandbox"],
     })
 

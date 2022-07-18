@@ -7,7 +7,7 @@
       class="btn"
       :rounded="true"
       size="is-medium"
-      @click="getData"
+      @click="startScraper"
     >
       START SCAN
     </b-button>
@@ -68,12 +68,15 @@ export default {
   },
 
   methods: {
-    getData() {
+    startScraper() {
       console.log(this.link)
-      axios
-          .get('http://127.0.0.1:8500/products')
-          .then(response => (this.data = response.data)) 
-      
+      axios.post("http://127.0.0.1:8500/start-scraper", {
+        "url": this.link
+      })
+
+      // axios
+      //     .get('http://127.0.0.1:8500/products')
+      //     .then(response => (this.data = response.data)) 
     },
 
     saveLink(l) {
