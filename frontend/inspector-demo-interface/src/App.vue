@@ -7,18 +7,17 @@
       class="btn"
       :rounded="true"
       size="is-medium"
-      @click="displayLink"
+      @click="getData"
     >
       START SCAN
     </b-button>
-    <p>test</p>
-    <b-table :data="data" :colums="columns" />
-    <p>test 2</p>
+    <b-table :data="data" :columns="columns" />
   </div>
 </template>
 
 <script>
 import InsertLink from "./components/InsertLink.vue";
+import axios from 'axios'
 
 export default {
   name: "App",
@@ -29,75 +28,53 @@ export default {
   data() {
     return {
       link: "",
-      data: [
-        {
-          id: 1,
-          first_name: "Jesse",
-          last_name: "Simmons",
-          date: "2016-10-15 13:43:27",
-          gender: "Male",
-        },
-        {
-          id: 2,
-          first_name: "John",
-          last_name: "Jacobs",
-          date: "2016-12-15 06:00:53",
-          gender: "Male",
-        },
-        {
-          id: 3,
-          first_name: "Tina",
-          last_name: "Gilbert",
-          date: "2016-04-26 06:26:28",
-          gender: "Female",
-        },
-        {
-          id: 4,
-          first_name: "Clarence",
-          last_name: "Flores",
-          date: "2016-04-10 10:28:46",
-          gender: "Male",
-        },
-        {
-          id: 5,
-          first_name: "Anne",
-          last_name: "Lee",
-          date: "2016-12-06 14:38:38",
-          gender: "Female",
-        },
-      ],
+      data: [],
       columns: [
         {
-          field: "id",
-          label: "ID",
-          width: "40",
-          numeric: true,
+          field:'id',
+          label: 'ID'
         },
         {
-          field: "first_name",
-          label: "First Name",
+          field:'name',
+          label: 'Name'
         },
         {
-          field: "last_name",
-          label: "Last Name",
+          field:'article_number',
+          label: 'Article Number'
         },
         {
-          field: "date",
-          label: "Date",
-          centered: true,
+          field:'price_current',
+          label: 'Current Price'
         },
         {
-          field: "gender",
-          label: "Gender",
+          field:'price_reference',
+          label: 'Reference Price'
         },
-      ],
+        {
+          field:'screenshot',
+          label: 'Screenshot'
+        },
+        {
+          field:'webshop',
+          label: 'Webshop'
+        },
+        {
+          field:'date',
+          label: 'Date'
+        },
+
+      ]
     };
   },
-  mounted() {
-    console.log({ data: this.data, columns: this.columns });
-  },
+
   methods: {
-    displayLink() {},
+    getData() {
+      console.log(this.link)
+      axios
+          .get('http://127.0.0.1:8500/products')
+          .then(response => (this.data = response.data)) 
+      
+    },
 
     saveLink(l) {
       this.link = l;
