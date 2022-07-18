@@ -25,7 +25,7 @@ def start_scraper():
 
 
 
-@app.route('/products', methods=["POST"]) # This function will be called inside scraper
+@app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper
 def add_products():
     products = json.loads(request.json)
 
