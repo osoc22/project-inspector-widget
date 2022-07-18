@@ -4,6 +4,7 @@ import json
 from flask import request, Response
 import os
 
+
 app = create_app()
 
 @app.route('/') 
@@ -12,10 +13,7 @@ def index():
 
 @app.route('/start-scraper') 
 def start_scraper():
-     # url = request.data.url
-     url = "https://www.vandenborre.be/fr/gsm-smartphone/smartphone"
-     cmd = f'python main.py {url}'
-     os.system(cmd)
+     test = main()
      
      return "It worked"
 
@@ -57,7 +55,7 @@ def add_products():
 def get_csv():
     # with open("outputs/Adjacency.csv") as fp:
     #     csv = fp.read()
-    csv = '1,2,3\n4,5,6\n'
+    csv = ''
 
     return Response(
         csv,
