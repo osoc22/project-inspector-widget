@@ -35,6 +35,17 @@ class GenericScraper:
         self = cls()
         self.page = await browser.newPage()
         self.url = url
+        self.generic_eval = """(n) => {{
+                    let ob = {{}}
+                    ob.product_name = n.querySelector('{0}').innerText
+                    ob.price_current = n.querySelector('{1}').innerText
+                    if (n.querySelector('{2}')) {{
+                        ob.price_reference = n.querySelector('{2}').innerText
+                    }} else {{
+                        ob.price_reference = ob.price_current
+                    }}
+                    return ob
+                }}"""
         return self
 
     async def go_to_page(self, url):
@@ -131,7 +142,11 @@ class X2OScraper(GenericScraper):
         par = await super().create(browser, url)
         self.page = par.page
         self.filename = "X20.csv"
-        print(self.url)
+        self.webshop = "x2o"
+        self.price_current_field = 'span[class^="price-"]'
+        self.price_reference_field = 'p[class^="PromoAdvantageEuro-oldPrice-"]'
+        self.product_name_field = 'a[class^="item-nameWrapper-"]'
+        self.eval_fct = par.generic_eval.format(self.product_name_field, self.price_current_field, self.price_reference_field)
         return self
 
     async def go_to_page(self, url):
@@ -153,27 +168,7 @@ class X2OScraper(GenericScraper):
             await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
-                p_i = await self.page.evaluate("""(n) => {
-                    let ob = {}
-                    ob.product_name = n.querySelector('a[class^="item-nameWrapper-"]').innerText
-                    ob.price_current = n.querySelector('span[class^="price-"]').innerText
-                    if (n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]')) {
-                        ob.price_reference = n.querySelector('p[class^="PromoAdvantageEuro-oldPrice-"]').innerText
-                    } else {
-                        ob.price_reference = ob.price_current
-                    }
-                    return ob
-                }""", product_node)
-                timestamp = str(time.time_ns())
-                p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
-                p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
-                p_i['webshop'] = 'x2o'
-                # user's excel language need to be english for this to work?
-                p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
-                coords = await product_node.boundingBox()
-                p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
-                p_i['timestamp'] = timestamp
-                product_informations.append(p_i)
+                product_informations.append(await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node))
             get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:], False)
             output_data_to_file(self.filename, product_informations)
             arrows = await self.page.querySelectorAll('a[class^=navButton-buttonArrow]')
@@ -189,6 +184,18 @@ class X2OScraper(GenericScraper):
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
         return product_informations
+
+async def extract_data_from_node(webshop, page, eval_fct, node):
+    p_i = await page.evaluate(eval_fct, node)
+    p_i["screenshot_id"] = str(time.time_ns())
+    p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
+    p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
+    p_i['webshop'] = webshop
+    coords = await node.boundingBox()
+    p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
+    #p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
+    return p_i
+    
 
 def output_data_to_endpoint(shop, data):
     today = datetime.date.today()
