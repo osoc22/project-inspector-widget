@@ -57,4 +57,5 @@ PRODUCTS = [
     }
 ]
 
-print(PRODUCTS)
+dt = datetime.fromtimestamp(1658141410673083800)
+print(dt.strftime("%d/%m/%Y %H:%M:%S"))
