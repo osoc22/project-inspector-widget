@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install curl gnupg -y \
   && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && apt-get update \
   && apt-get install google-chrome-stable -y --no-install-recommends \
+  && apt-get install -f \
   && rm -rf /var/lib/apt/lists/*
 
 
@@ -30,6 +31,6 @@ COPY . /flaskr
 
 EXPOSE 8500
 
-CMD flask db upgrade
-
-ENTRYPOINT flask run --host='0.0.0.0'
+# Run commands at start up
+RUN chmod u+x ./docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
