@@ -71,4 +71,4 @@ def get_products():
      return json.dumps(products)
 
 if __name__ == '__main__': 
-      app.run(host='0.0.0.0')
+     app.run(debug=True)
