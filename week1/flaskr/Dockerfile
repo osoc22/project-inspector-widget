@@ -1,5 +1,5 @@
 # pull official base image
-FROM --platform=linux/amd64 python:3.10-bullseye
+FROM python:3.10-bullseye
 
 RUN mkdir /flaskr
 
