@@ -24,6 +24,18 @@ def start_scraper():
 
      return json.dumps(output)
 
+@app.route('/scrapers/<id>')
+def start_scraper_by_id(id):
+     scraper = Scraper.find_by_id(id)
+
+     if not scraper:
+          pass
+          # if scraper not found throw, scraper not found error
+
+     url = scraper.url
+     cmd = f'python scraper.py {url}'
+     os.system(cmd)
+
 @app.route('/scrapers', methods=["POST"]) 
 def add_scraper():
      data = json.loads(request.data)
@@ -40,6 +52,7 @@ def add_scraper():
      scraper.save_to_db()
 
      return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
+
 
 
 @app.route('/scrapers', methods=["GET"]) 
