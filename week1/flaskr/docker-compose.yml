@@ -8,6 +8,7 @@ services:
     flask_app:
       image: flask_app:latest
       container_name: flask_app
+      platform: linux/x86_64
       env_file: ./.env
       build:
         dockerfile: ./Dockerfile
