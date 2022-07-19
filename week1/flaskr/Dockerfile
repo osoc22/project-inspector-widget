@@ -33,4 +33,4 @@ EXPOSE 8500
 
 # Run commands at start up
 RUN chmod u+x ./docker-entrypoint.sh
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./docker-entrypoint.sh"]
