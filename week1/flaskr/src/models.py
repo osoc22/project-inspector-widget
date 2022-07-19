@@ -106,6 +106,11 @@ class Product(db.Model):
 
     screenshot = db.relationship('Screenshot')
 
+    scraper_id = db.Column(db.Integer, db.ForeignKey('scrapers.id'),
+        nullable=False)
+
+    scraper = db.relationship('Scraper')
+
     @classmethod
     def find_all(cls):
         return cls.query.all()
@@ -128,4 +133,43 @@ class Product(db.Model):
             'screenshot': self.screenshot.name,
             'webshop': self.webshop.name,
             'date': self.date.strftime("%d-%m-%Y, %H:%M:%S")
+       }
+
+class Scraper(db.Model):
+    __tablename__ = 'scrapers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    url = db.Column(db.String(), nullable=False)
+    start_date = db.Column(db.DateTime(), nullable=False)
+    end_date = db.Column(db.DateTime(), nullable=False)
+    last_scanned = db.Column(db.DateTime(), nullable=True)
+
+
+    webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
+        nullable=False)
+
+    webshop = db.relationship('WebShop')
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+    
+    def serialize(self):
+       return {
+            'id': self.id,
+            'name': self.name,
+            'url': self.url,
+            'start_date': self.start_date.strftime("%d-%m-%Y, %H:%M:%S"),
+            'end_date': self.end_date.strftime("%d-%m-%Y, %H:%M:%S"),
+            'last_scanned': self.last_scanned,
+            'webshop': self.webshop.name
        }
