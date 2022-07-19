@@ -73,11 +73,11 @@ export default {
       axios.post("http://127.0.0.1:8500/start-scraper", {
         "url": this.link
       })
-      .then(response => console.log("it worked"))
+      .then(response => console.log(response))
 
-      // axios
-      //     .get('http://127.0.0.1:8500/products')
-      //     .then(response => (this.data = response.data)) 
+      /* axios
+        .get('http://127.0.0.1:8500/products')
+        .then(response => (this.data = response.data))  */
     },
 
     saveLink(l) {
