@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install curl gnupg -y \
   && apt-get install -f \
   && rm -rf /var/lib/apt/lists/*
 
+
 # install dependencies
 COPY requirements.txt requirements.txt
 
