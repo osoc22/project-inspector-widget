@@ -1,6 +1,7 @@
 from . import create_app
-from .src.models import Product, WebShop, Screenshot
+from .src.models import Product, WebShop, Screenshot, Scraper
 import json
+import tldextract
 from flask import request
 import os
 
@@ -23,7 +24,33 @@ def start_scraper():
 
      return json.dumps(output)
 
+@app.route('/scrapers', methods=["POST"]) 
+def add_scraper():
+     data = json.loads(request.data)
+     ext = tldextract.extract(data['url'])
+     
+     webshop_name = ext.domain
+     webshop = WebShop.find_by_name(webshop_name)
 
+     if not webshop:
+          webshop = WebShop(name=webshop_name)
+          webshop.save_to_db()
+     
+     scraper = Scraper(name=data['name'], url=data['url'], webshop=webshop, start_date=data['start_date'], end_date=data['end_date'])
+     scraper.save_to_db()
+
+     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
+
+
+@app.route('/scrapers', methods=["GET"]) 
+def get_scrapers():
+     scrapers = []
+
+     for scraper in Scraper.find_all():
+          s = scraper.serialize()
+          scrapers.append(s)
+     
+     return json.dumps(scrapers)
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper
 def add_products():
