@@ -2,6 +2,7 @@ import asyncio
 import base64
 import csv
 import json
+import logging
 from os.path import exists
 import datetime
 import socket
@@ -37,12 +38,22 @@ class GenericScraper:
         self.page = await browser.newPage()
         self.url = url
         self.generic_eval = """(n) => {{
-                    let ob = {{}}
-                    ob.product_name = n.querySelector('{0}').innerText
-                    ob.price_current = n.querySelector('{1}').innerText
+                    let ob = {{
+                        "product_name" : null,
+                        "price_current": null,
+                        "price_reference": null,
+                        "product_code": null
+                    }}
+                    if (n.querySelector('{0}')) {{
+                        ob.product_name = n.querySelector('{0}').innerText
+                    }}
+                    if (n.querySelector('{1}')) {{
+                        ob.price_current = n.querySelector('{1}').innerText
+                    }}
                     if (n.querySelector('{2}')) {{
                         ob.price_reference = n.querySelector('{2}').innerText
-                    }} else {{
+                    }}
+                    if (ob.price_reference == null) {{
                         ob.price_reference = ob.price_current
                     }}
                     return ob
@@ -79,59 +90,51 @@ class VandenborreScraper(GenericScraper):
         par = await super().create(browser, url)
         self.page = par.page
         self.filename = "vandenborre.csv"
-        print(self.url)
+        self.webshop = "x2o"
+        self.price_current_field = '.current'
+        self.price_reference_field = '.reference'
+        self.product_name_field = '.productname'
+        self.eval_fct = par.generic_eval.format(self.product_name_field, self.price_current_field, self.price_reference_field)
         return self
 
     async def go_to_page(self, url):
         await super().go_to_page(url)
 
     async def scrape(self):
+        product_informations = []
         await self.go_to_page(self.url)
         # this clicks the "OK" button on the popup asking us for cookies
         await self.page.evaluate("""() => {
             document.getElementById("onetrust-accept-btn-handler").dispatchEvent(new MouseEvent("click", {
                 cancelable: true,
-                view: window
+                view: window,
+                bubbles: true
             }));
         }""")
-
-        await self.page.select('select[name="COUNTPERPAGE"', '0')
+        await asyncio.sleep(3)
+        #await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
-        # this gets every product information on the page
-        await self.page.screenshot({'path': OUTPUT_PATH+'ttt.png', 'fullPage': True})
-        products_nodes = await self.page.querySelectorAll('div.product-container > div.product')
+        
+        # this closes the weird "hey need help" thing on the website if it pops up
+        if await self.page.querySelector('body[class*="no-scroll"]'):
+            await self.page.evaluate("""() => {
+                document.querySelector("div[class*='js-open-whisbi']").dispatchEvent(new MouseEvent("click", {
+                    cancelable: true,
+                    bubbles: true,
+                    view: window
+                }));
+            }""")
+            
+        big_image = BytesIO(await self.page.screenshot({'type': 'png', 'fullPage': True}))
+        product_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
-        product_informations = []
-
-        for product_node in products_nodes:
-            p_i = await self.page.evaluate("""(n) => {
-                let ob = {}
-                ob.product_name = n.querySelector(".productname").innerText
-                if (n.querySelector(".reference")) {
-                    ob.price_reference = n.querySelector(".reference").innerText
-                    ob.price_current = n.querySelector(".current").innerText
-                } else {
-                    let price = n.querySelector(".current").innerText
-                    ob.price_reference = price
-                    ob.price_current = price
-                }
-                return ob
-            }
-            """, product_node)
-            timestamp = str(time.time_ns())
-            p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
-            p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
-            p_i['webshop'] = 'vandenborre'
-            # user's excel language need to be english for this to work?
-            p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
-            coords = await product_node.boundingBox()
-            p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
-            p_i['timestamp'] = timestamp
-            product_informations.append(p_i)
-        get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations, False)
-        output_data_to_file(self.filename, product_informations)
-        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        return product_informations
+        for product_node in product_nodes:
+            product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
+            if product_info is not None:
+                product_informations.append(product_info)
+        get_products_from_screenshot(big_image, product_informations, True)
+        # res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
+        print(product_informations)
 
 class X2OScraper(GenericScraper):
     """A scraper for the X2O webshop
@@ -170,9 +173,10 @@ class X2OScraper(GenericScraper):
             await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
-                product_informations.append(await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node))
-            get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:], False)
-            output_data_to_file(self.filename, product_informations)
+                product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
+                if product_info is not None:
+                    product_informations.append(product_info)
+            get_products_from_screenshot(OUTPUT_PATH+'{0}{1}.png'.format(self.webshop, page_nbr), product_informations[len(product_nodes)*-1:], False)
             arrows = await self.page.querySelectorAll('a[class^=navButton-buttonArrow]')
             for arrow in arrows:
                 nbr = await self.page.evaluate("""(a) => {
@@ -185,11 +189,13 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
-        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
+        #res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         return product_informations
 
 async def extract_data_from_node(webshop, page, eval_fct, node):
     p_i = await page.evaluate(eval_fct, node)
+    if not p_i['product_name'] or not p_i['price_current'] or not p_i['price_reference']:
+        return None
     p_i["screenshot_id"] = str(time.time_ns())
     p_i['price_reference'] = Price.fromstring(p_i['price_reference']).amount_float
     p_i['price_current'] = Price.fromstring(p_i['price_current']).amount_float
@@ -254,13 +260,12 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
             for product in product_data:
                 region = im.crop(product['coords'])
                 if saveImg:
-                    region.save(OUTPUT_PATH+product['timestamp']+'.png')
+                    region.save(OUTPUT_PATH+product['screenshot_id']+'.png')
                 else:
                     buffer = BytesIO()
                     region.save(buffer, format="PNG")
                     buffer.seek(0)
                     product["screenshot"] = base64.b64encode(buffer.getvalue()).decode()
-                    product["screenshot_id"] = product["timestamp"]
     except OSError:
         print("oh oh")
         pass
@@ -278,7 +283,8 @@ async def main(url):
         CHROME_IP = socket.getaddrinfo('chrome',0)[0][4][0]
     except socket.gaierror:
         CHROME_IP = '127.0.0.1'
-    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222')
+    pyppeteer.DEBUG = True
+    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222', logLevel=logging.DEBUG)
     context = await browser.createIncognitoBrowserContext()
     scraper = None
     if ('vandenborre.be' in url):
@@ -291,6 +297,7 @@ async def main(url):
         exit(0)
     ret = await scraper.scrape()
     await context.close()
+    await browser.disconnect()
     return ret
 
 @click.command()
