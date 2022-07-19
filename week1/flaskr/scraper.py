@@ -4,10 +4,11 @@ import csv
 import json
 from os.path import exists
 import datetime
+import socket
 import time
 from io import BytesIO
 from PIL import Image
-from pyppeteer import launch
+import pyppeteer
 import click
 from price_parser import Price
 import requests
@@ -148,7 +149,7 @@ class X2OScraper(GenericScraper):
         page_nbr = 0
         next_page_nbr = 1
         while (page_nbr < next_page_nbr):
-            time.sleep(1)
+            await asyncio.sleep(5)
             page_nbr = next_page_nbr
             await self.page.waitForSelector('div[class^="gallery-root-"]')
             await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
@@ -198,7 +199,7 @@ def output_data_to_endpoint(shop, data):
         data["date"] = today
         data["image"] = data.pop("timestamp")
         data["webshop"] = shop
-    res = requests.post("http://localhost:5000/products", json=json.dumps(data))
+    res = requests.post("http://localhost:8500/products", json=json.dumps(data))
     
 def output_screenshot_to_endpoint(img_source, product_data):
     payload = []
@@ -210,7 +211,7 @@ def output_screenshot_to_endpoint(img_source, product_data):
                 region.save(buffer, fomart="PNG")
                 buffer.seek(0)
                 payload.append({"id":product_data["timestamp"], "image": base64.b64encode(buffer).decode()})
-        res = requests.post("http://localhost:5000/products", json=json.dumps(payload))
+        res = requests.post("http://localhost:8500/products", json=json.dumps(payload))
     except OSError:
         print("oh oh")
         pass
@@ -265,23 +266,24 @@ async def main(url):
     Args:
         url (str): the url of the webshop to scrape.
     """
-    browser = await launch({
-        'autoClose': False,
-        'executablePath': '/usr/bin/chromium',
-        'args': ["--no-sandbox"],
-    })
-
+    # hopefully this gets the chrome service's IP, because chrome debug doesn't allow access via hostname
+    try:
+        CHROME_IP = socket.getaddrinfo('chrome',0)[0][4][0]
+    except socket.gaierror:
+        CHROME_IP = '127.0.0.1'
+    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222')
+    context = await browser.createIncognitoBrowserContext()
     scraper = None
     if ('vandenborre.be' in url):
-        scraper = await VandenborreScraper.create(browser, url)
+        scraper = await VandenborreScraper.create(context, url)
     elif ('x2o.be' in url):
-        scraper = await X2OScraper.create(browser, url)
+        scraper = await X2OScraper.create(context, url)
     else:
         print('webshop not supported')
-        await browser.close()
+        await context.close()
         exit(0)
     ret = await scraper.scrape()
-    await browser.close()
+    await context.close()
     return ret
 
 @click.command()
