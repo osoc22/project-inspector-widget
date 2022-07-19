@@ -143,7 +143,7 @@ class Scraper(db.Model):
     url = db.Column(db.String(), nullable=False)
     start_date = db.Column(db.DateTime(), nullable=False)
     end_date = db.Column(db.DateTime(), nullable=False)
-    last_scanned = db.Column(db.DateTime(), nullable=False)
+    last_scanned = db.Column(db.DateTime(), nullable=True)
 
 
     webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
@@ -151,6 +151,7 @@ class Scraper(db.Model):
 
     webshop = db.relationship('WebShop')
 
+    @classmethod
     def find_all(cls):
         return cls.query.all()
 
@@ -167,8 +168,8 @@ class Scraper(db.Model):
             'id': self.id,
             'name': self.name,
             'url': self.url,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
+            'start_date': self.start_date.strftime("%d-%m-%Y, %H:%M:%S"),
+            'end_date': self.end_date.strftime("%d-%m-%Y, %H:%M:%S"),
             'last_scanned': self.last_scanned,
             'webshop': self.webshop.name
        }

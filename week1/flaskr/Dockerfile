@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install curl gnupg -y \
   && apt-get install -f \
   && rm -rf /var/lib/apt/lists/*
 
-
 # install dependencies
 COPY requirements.txt requirements.txt
 
@@ -33,4 +32,4 @@ EXPOSE 8500
 
 # Run commands at start up
 RUN chmod u+x ./docker-entrypoint.sh
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./docker-entrypoint.sh"]

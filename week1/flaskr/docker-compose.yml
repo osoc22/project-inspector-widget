@@ -9,7 +9,7 @@ services:
         dockerfile: ./Dockerfile
       links:
         - postgres
-      depends_on:
+      depends_on:  # This service depends on postgres. Start that first.
         - postgres
         - chrome
       ports:
@@ -19,7 +19,11 @@ services:
       image: postgres:latest
       env_file: ./.env
       volumes:
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
         - postgres:/var/lib/postgresql/data
+   
+   
+   
       restart: always
       ports:
         - 5432:5432
