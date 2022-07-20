@@ -134,7 +134,6 @@ class VandenborreScraper(GenericScraper):
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
         # res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        print("the scraping workked")
         return product_informations
 
 class X2OScraper(GenericScraper):
@@ -258,6 +257,7 @@ async def main(url, scraper_id):
         await context.close()
         exit(0)
     ret = await scraper.scrape()
+    print(json.dumps(ret))
     res = requests.post("http://localhost:8500/products", json=json.dumps(ret))
     await context.close()
     await browser.disconnect()
