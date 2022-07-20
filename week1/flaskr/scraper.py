@@ -133,9 +133,10 @@ class VandenborreScraper(GenericScraper):
             product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
             if product_info is not None:
                 product_informations.append(product_info)
-        get_products_from_screenshot(big_image, product_informations, True)
+        get_products_from_screenshot(big_image, product_informations, False)
         # res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        print(product_informations)
+        print("the scraping workked")
+        return product_informations
 
 class X2OScraper(GenericScraper):
     """A scraper for the X2O webshop
@@ -191,6 +192,7 @@ class X2OScraper(GenericScraper):
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
         #res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
+        print("heyy i workes")
         return product_informations
 
 async def extract_data_from_node(webshop, page, eval_fct, node):
@@ -297,6 +299,7 @@ async def main(url):
         await context.close()
         exit(0)
     ret = await scraper.scrape()
+    res = requests.post("http://localhost:8500/products", json=json.dumps(ret))
     await context.close()
     await browser.disconnect()
     return ret
