@@ -310,8 +310,8 @@ async def main(url, scraper_id):
 
 @click.command()
 @click.argument('url')
-@click.argument('scraper_id')
-def start(url, scraper_id):
+@click.argument('scraper_id', required=False)
+def start(url, scraper_id=None):
     asyncio.run(main(url, scraper_id))
 
 if __name__ == '__main__':
