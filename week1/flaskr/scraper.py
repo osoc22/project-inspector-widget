@@ -5,10 +5,11 @@ import json
 import logging
 from os.path import exists
 import datetime
+import socket
 import time
 from io import BytesIO
 from PIL import Image
-from pyppeteer import launch
+import pyppeteer
 import click
 from price_parser import Price
 import requests
@@ -271,7 +272,6 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
 
 
 
-
 async def main(url):
     """Creates an appropriate scraper from the url given and starts scraping away.
 
@@ -288,13 +288,12 @@ async def main(url):
     context = await browser.createIncognitoBrowserContext()
     scraper = None
     if ('vandenborre.be' in url):
-        scraper = await VandenborreScraper.create(browser, url)
-        print("yes")
+        scraper = await VandenborreScraper.create(context, url)
     elif ('x2o.be' in url):
-        scraper = await X2OScraper.create(browser, url)
+        scraper = await X2OScraper.create(context, url)
     else:
         print('webshop not supported')
-        await browser.close()
+        await context.close()
         exit(0)
     ret = await scraper.scrape()
     await context.close()
