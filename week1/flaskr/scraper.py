@@ -130,7 +130,7 @@ class VandenborreScraper(GenericScraper):
         product_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         for product_node in product_nodes:
-            product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
+            product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node, self.url)
             if product_info is not None:
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
@@ -175,7 +175,7 @@ class X2OScraper(GenericScraper):
             await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
-                product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
+                product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node, self.url)
                 if product_info is not None:
                     product_informations.append(product_info)
             get_products_from_screenshot(OUTPUT_PATH+'{0}{1}.png'.format(self.webshop, page_nbr), product_informations[len(product_nodes)*-1:], False)
@@ -195,7 +195,7 @@ class X2OScraper(GenericScraper):
         print("heyy i workes")
         return product_informations
 
-async def extract_data_from_node(webshop, page, eval_fct, node):
+async def extract_data_from_node(webshop, page, eval_fct, node, url):
     p_i = await page.evaluate(eval_fct, node)
     if not p_i['product_name'] or not p_i['price_current'] or not p_i['price_reference']:
         return None
@@ -205,6 +205,7 @@ async def extract_data_from_node(webshop, page, eval_fct, node):
     p_i['webshop'] = webshop
     coords = await node.boundingBox()
     p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
+    p_i['url'] = ''
     #p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
     return p_i
     
