@@ -1,0 +1,110 @@
+<template>
+  <section>
+    <b-table :data="this.getData">
+      <b-table-column   field="id" label="ID" width="40" centered v-slot="props">
+        <p class="text-left" > {{ props.row.id }} </p>
+      </b-table-column>
+
+      <b-table-column centered field="name" label="Scraper Name" v-slot="props">
+        <p class="text-left" > {{ props.row.name }} </p>
+      </b-table-column>
+
+      <!-- <b-table-column field="url" label="URL" centered v-slot="props">
+        <p class="text-center" > {{ props.row.url }} </p>
+      </b-table-column> -->
+
+
+      <b-table-column field="status" label="Status" centered v-slot="props">
+        <span
+          class="tag"
+          :class="{
+            'is-success': props.row.status == 'finished',
+            'is-warning': props.row.status == 'running',
+          }"
+        >
+          <p class="text-left" >{{ props.row.status }} </p>
+        </span>
+      </b-table-column>
+
+      <b-table-column label="Results" centered v-slot="props">
+        <b-button
+          @click="downloadResults"
+          size="is-small"
+          rounded
+          outlined
+          :type="{
+            'is-warning': props.row.status == 'running',
+            'is-success': props.row.status == 'finished',
+          }"
+        >
+          results
+        </b-button>
+      </b-table-column>
+        
+      <b-table-column >
+        <button @click="showOverview"><mdicon name="information-outline" /></button>
+      </b-table-column>
+    </b-table>
+    <b-modal
+            v-model="this.getOverview"
+            has-modal-card
+            trap-focus
+            :destroy-on-hide="false"
+            aria-role="dialog"
+            aria-label="Example Modal"
+            close-button-aria-label="Close"
+            aria-modal>
+            <overview-overlay />
+
+    </b-modal>
+  </section>
+</template>
+
+<script>
+import axios from 'axios'
+import { mapGetters, mapMutations } from 'vuex'
+import OverviewOverlay from './OverviewOverlay.vue'
+
+export default {
+  name: "ScrapersTable",
+  components: {
+    OverviewOverlay,
+  },
+
+  computed: {
+ 
+    ...mapGetters(['getData', 'getOverview'])
+  },
+
+  methods: {
+  ...mapMutations(['SET_DATA', 'SET_OVERVIEW']),
+
+  downloadResults() {
+          console.log("this should download the results")
+      },
+  showOverview() {
+    console.log("this should start the scraper")
+    this.SET_OVERVIEW(true)
+  }
+  },
+  created() {
+    axios
+    .get('https://bosa-inspector-widget.herokuapp.com/scrapers')
+    .then(result => this.SET_DATA(result.data))
+    
+  },
+
+}
+</script>
+
+<style scoped>
+.text_center {
+  text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+
+</style>
