@@ -104,13 +104,14 @@ class VandenborreScraper(GenericScraper):
         product_informations = []
         await self.go_to_page(self.url)
         # this clicks the "OK" button on the popup asking us for cookies
-        await self.page.evaluate("""() => {
-            document.getElementById("onetrust-accept-btn-handler").dispatchEvent(new MouseEvent("click", {
-                cancelable: true,
-                view: window,
-                bubbles: true
-            }));
-        }""")
+        if await self.page.querySelector("#onetrust-accept-btn-handler"):
+            await self.page.evaluate("""() => {
+                document.querySelector("#onetrust-accept-btn-handler").dispatchEvent(new MouseEvent("click", {
+                    cancelable: true,
+                    view: window,
+                    bubbles: true
+                }));
+            }""")
         await asyncio.sleep(3)
         #await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
