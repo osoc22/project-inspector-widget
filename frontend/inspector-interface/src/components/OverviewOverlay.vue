@@ -1,6 +1,5 @@
 <template>
-    <div class="container">
-    <b-table :data="[this.getData[0]]">
+    <b-table :data="[this.getData[0]]" :card-layout=true>
       <b-table-column   field="id" label="ID" width="40" centered v-slot="props">
         <p class="text-left" > {{ props.row.id }} </p>
       </b-table-column>
@@ -41,7 +40,6 @@
         </b-button>
       </b-table-column>
     </b-table>
-    </div>
 </template>
 
 
