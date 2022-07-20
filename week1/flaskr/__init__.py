@@ -1,7 +1,14 @@
 from flask import Flask
 from flask_migrate import Migrate
-from . import config
-from .src.models import db
+try:
+    import config                           
+except ImportError:
+    from . import config
+try:
+    from src.models import db
+except:
+    from .src.models import db
+    
 from flask_cors import CORS
 migrate = Migrate() # Initializing migrate.
 

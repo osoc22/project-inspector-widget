@@ -25,13 +25,14 @@
 
 
 ### To run services as a docker container
-* Set environment variables
-    
-    ```cp .env.example .env```
 
 * Enter directory
 
     ``` cd flaskr```
+
+* Set environment variables
+    
+    ```cp .env.example .env```
 
 * Run using
 

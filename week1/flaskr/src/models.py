@@ -1,3 +1,4 @@
+from enum import unique
 import flask_sqlalchemy
 
 db = flask_sqlalchemy.SQLAlchemy()
@@ -107,7 +108,7 @@ class Product(db.Model):
     screenshot = db.relationship('Screenshot')
 
     scraper_id = db.Column(db.Integer, db.ForeignKey('scrapers.id'),
-        nullable=False)
+        nullable=True)
 
     scraper = db.relationship('Scraper')
 
@@ -140,7 +141,7 @@ class Scraper(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    url = db.Column(db.String(), nullable=False)
+    url = db.Column(db.String(), nullable=False, unique=True)
     start_date = db.Column(db.DateTime(), nullable=False)
     end_date = db.Column(db.DateTime(), nullable=False)
     last_scanned = db.Column(db.DateTime(), nullable=True)
@@ -150,6 +151,8 @@ class Scraper(db.Model):
         nullable=False)
 
     webshop = db.relationship('WebShop')
+
+    products = db.relationship("Product")
 
     @classmethod
     def find_by_id(cls, id: int):

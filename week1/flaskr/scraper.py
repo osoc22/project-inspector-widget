@@ -2,13 +2,13 @@ import asyncio
 import base64
 import csv
 import json
+import os
 from os.path import exists
 import datetime
-import socket
 import time
 from io import BytesIO
 from PIL import Image
-import pyppeteer
+from pyppeteer import launch
 import click
 from price_parser import Price
 import requests
@@ -69,7 +69,6 @@ class VandenborreScraper(GenericScraper):
         self.page = par.page
         self.filename = "vandenborre.csv"
         print(self.url)
-        return self
 
     async def go_to_page(self, url):
         await super().go_to_page(url)
@@ -116,10 +115,11 @@ class VandenborreScraper(GenericScraper):
             coords = await product_node.boundingBox()
             p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
             p_i['timestamp'] = timestamp
+            p_i['url'] = self.url
             product_informations.append(p_i)
         get_products_from_screenshot(OUTPUT_PATH+'ttt.png', product_informations, False)
         output_data_to_file(self.filename, product_informations)
-        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
+        res = requests.post(os.environ.get('APP_URL') + "/products", json=json.dumps(product_informations))
         return product_informations
 
 class X2OScraper(GenericScraper):
@@ -175,6 +175,7 @@ class X2OScraper(GenericScraper):
                 coords = await product_node.boundingBox()
                 p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
                 p_i['timestamp'] = timestamp
+                p_i['url'] = self.url
                 product_informations.append(p_i)
             get_products_from_screenshot(OUTPUT_PATH+'tttt{}.png'.format(page_nbr), product_informations[len(product_nodes)*-1:], False)
             output_data_to_file(self.filename, product_informations)
@@ -190,7 +191,7 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
-        res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
+        res = requests.post(os.environ.get('APP_URL') + "/products", json=json.dumps(product_informations))
         return product_informations
 
 def output_data_to_endpoint(shop, data):
@@ -260,30 +261,31 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
 
 
 
+
 async def main(url):
     """Creates an appropriate scraper from the url given and starts scraping away.
 
     Args:
         url (str): the url of the webshop to scrape.
     """
-    # hopefully this gets the chrome service's IP, because chrome debug doesn't allow access via hostname
-    try:
-        CHROME_IP = socket.getaddrinfo('chrome',0)[0][4][0]
-    except socket.gaierror:
-        CHROME_IP = '127.0.0.1'
-    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222')
-    context = await browser.createIncognitoBrowserContext()
+    browser = await launch({
+        'autoClose': False,
+        'executablePath': '/usr/bin/google-chrome-stable',
+        'args': ["--no-sandbox"],
+    })
+
     scraper = None
     if ('vandenborre.be' in url):
-        scraper = await VandenborreScraper.create(context, url)
+        scraper = await VandenborreScraper.create(browser, url)
+        print("yes")
     elif ('x2o.be' in url):
-        scraper = await X2OScraper.create(context, url)
+        scraper = await X2OScraper.create(browser, url)
     else:
         print('webshop not supported')
-        await context.close()
+        await browser.close()
         exit(0)
     ret = await scraper.scrape()
-    await context.close()
+    await browser.close()
     return ret
 
 @click.command()
