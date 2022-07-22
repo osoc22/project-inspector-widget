@@ -145,7 +145,7 @@ class Scraper(db.Model):
     start_date = db.Column(db.DateTime(), nullable=False)
     end_date = db.Column(db.DateTime(), nullable=False)
     last_scanned = db.Column(db.DateTime(), nullable=True)
-
+    status = db.Column(db.String(255), default="RUNNING")
 
     webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
         nullable=False)
@@ -178,5 +178,6 @@ class Scraper(db.Model):
             'start_date': self.start_date.strftime("%d-%m-%Y, %H:%M:%S"),
             'end_date': self.end_date.strftime("%d-%m-%Y, %H:%M:%S"),
             'last_scanned': self.last_scanned,
-            'webshop': self.webshop.name
+            'webshop': self.webshop.name,
+            'status': self.status
        }

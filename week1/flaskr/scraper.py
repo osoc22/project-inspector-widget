@@ -3,9 +3,11 @@ import base64
 import csv
 import json
 import logging
+import os
 from os.path import exists
 import datetime
 import socket
+from pyppeteer import launch
 import time
 from io import BytesIO
 from PIL import Image
@@ -24,7 +26,7 @@ class GenericScraper:
     """
 
     @classmethod
-    async def create(cls, browser, url, scraper_id):
+    async def create(cls, browser, url):
         """Creates a scraper from a browser instance and url
 
         Args:
@@ -37,7 +39,6 @@ class GenericScraper:
         self = cls()
         self.page = await browser.newPage()
         self.url = url
-        self.scraper_id = scraper_id
         self.generic_eval = """(n) => {{
                     let ob = {{
                         "product_name" : null,
@@ -85,11 +86,10 @@ class VandenborreScraper(GenericScraper):
     """
 
     @classmethod
-    async def create(cls, browser, url, scraper_id):
+    async def create(cls, browser, url):
         self = cls()
         self.url = url
-        self.scraper_id = scraper_id
-        par = await super().create(browser, url, scraper_id)
+        par = await super().create(browser, url)
         self.page = par.page
         self.filename = "vandenborre.csv"
         self.webshop = "x2o"
@@ -132,7 +132,7 @@ class VandenborreScraper(GenericScraper):
         product_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         for product_node in product_nodes:
-            product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node)
+            product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node, self.url)
             if product_info is not None:
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
@@ -145,11 +145,10 @@ class X2OScraper(GenericScraper):
     """
 
     @classmethod
-    async def create(cls, browser, url, scraper_id):
+    async def create(cls, browser, url):
         self = cls()
         self.url = url
-        self.scraper_id = scraper_id
-        par = await super().create(browser, url, scraper_id)
+        par = await super().create(browser, url)
         self.page = par.page
         self.filename = "X20.csv"
         self.webshop = "x2o"
@@ -178,7 +177,7 @@ class X2OScraper(GenericScraper):
             await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
-                product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node)
+                product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node, self.url)
                 if product_info is not None:
                     product_informations.append(product_info)
             get_products_from_screenshot(OUTPUT_PATH+'{0}{1}.png'.format(self.webshop, page_nbr), product_informations[len(product_nodes)*-1:], False)
@@ -196,9 +195,10 @@ class X2OScraper(GenericScraper):
                 }""")
         #res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         print("heyy i workes")
+        print(product_informations[0])
         return product_informations
 
-async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node):
+async def extract_data_from_node(webshop, page, eval_fct, node, url):
     p_i = await page.evaluate(eval_fct, node)
     if not p_i['product_name'] or not p_i['price_current'] or not p_i['price_reference']:
         return None
@@ -208,7 +208,7 @@ async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node):
     p_i['webshop'] = webshop
     coords = await node.boundingBox()
     p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
-    p_i['scraper_id'] = scraper_id
+    p_i['url'] = url
     #p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
     return p_i
     
@@ -219,7 +219,7 @@ def output_data_to_endpoint(shop, data):
         data["date"] = today
         data["image"] = data.pop("timestamp")
         data["webshop"] = shop
-    res = requests.post("http://localhost:8500/products", json=json.dumps(data))
+   # res = requests.post(os.environ["APP_URL"] + "/products", json=json.dumps(data))
     
 def output_screenshot_to_endpoint(img_source, product_data):
     payload = []
@@ -231,7 +231,7 @@ def output_screenshot_to_endpoint(img_source, product_data):
                 region.save(buffer, fomart="PNG")
                 buffer.seek(0)
                 payload.append({"id":product_data["timestamp"], "image": base64.b64encode(buffer).decode()})
-        res = requests.post("http://localhost:8500/products", json=json.dumps(payload))
+        #res = requests.post(os.environ["APP_URL"] + "/products", json=json.dumps(payload))
     except OSError:
         print("oh oh")
         pass
@@ -273,46 +273,45 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
                     region.save(buffer, format="PNG")
                     buffer.seek(0)
                     product["screenshot"] = base64.b64encode(buffer.getvalue()).decode()
+                    print(product["screenshot"])
     except OSError:
         print("oh oh")
         pass
 
 
 
-async def main(url, scraper_id):
+async def main(url):
     """Creates an appropriate scraper from the url given and starts scraping away.
 
     Args:
         url (str): the url of the webshop to scrape.
     """
     # hopefully this gets the chrome service's IP, because chrome debug doesn't allow access via hostname
-    try:
-        CHROME_IP = socket.getaddrinfo('chrome',0)[0][4][0]
-    except socket.gaierror:
-        CHROME_IP = '127.0.0.1'
-    pyppeteer.DEBUG = True
-    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222', logLevel=logging.DEBUG)
-    context = await browser.createIncognitoBrowserContext()
+    browser = await launch({
+        'autoClose': False,
+        'executablePath': '/usr/bin/google-chrome-stable',
+        'args': ["--no-sandbox"],
+    })
     scraper = None
     if ('vandenborre.be' in url):
-        scraper = await VandenborreScraper.create(context, url, scraper_id)
+        scraper = await VandenborreScraper.create(browser, url)
+        print("yes")
     elif ('x2o.be' in url):
-        scraper = await X2OScraper.create(context, url, scraper_id)
+        scraper = await X2OScraper.create(browser, url)
     else:
         print('webshop not supported')
-        await context.close()
+        await browser.close()
         exit(0)
     ret = await scraper.scrape()
-    res = requests.post("http://localhost:8500/products", json=json.dumps(ret))
-    await context.close()
+    res = requests.post(os.environ["APP_URL"] + "/products", json=json.dumps(ret))
+    await browser.close()
     await browser.disconnect()
     return ret
 
 @click.command()
 @click.argument('url')
-@click.argument('scraper_id')
-def start(url, scraper_id):
-    asyncio.run(main(url, scraper_id))
+def start(url):
+    asyncio.run(main(url))
 
 if __name__ == '__main__':
     # pylint: disable=no-value-for-parameter

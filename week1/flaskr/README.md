@@ -58,3 +58,4 @@ There are mainly four models
 * **Webshop** - which contains details about the webshops
 * **Screenshot** - which contains details about the screenshots
 * **Product** - which contains details about the products
+* **Scraper** - which contains details about the scrapers
