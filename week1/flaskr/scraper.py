@@ -1,6 +1,5 @@
 import asyncio
 import base64
-import csv
 import json
 import logging
 import os
@@ -137,7 +136,6 @@ class VandenborreScraper(GenericScraper):
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
         # res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        print("the scraping workked")
         return product_informations
 
 class X2OScraper(GenericScraper):
@@ -174,13 +172,13 @@ class X2OScraper(GenericScraper):
             await asyncio.sleep(5)
             page_nbr = next_page_nbr
             await self.page.waitForSelector('div[class^="gallery-root-"]')
-            await self.page.screenshot({'path': OUTPUT_PATH+'tttt{}.png'.format(page_nbr)})
+            big_image = BytesIO(await self.page.screenshot({'type': 'png', 'fullPage': True}))
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
                 product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node, self.url)
                 if product_info is not None:
                     product_informations.append(product_info)
-            get_products_from_screenshot(OUTPUT_PATH+'{0}{1}.png'.format(self.webshop, page_nbr), product_informations[len(product_nodes)*-1:], False)
+            get_products_from_screenshot(big_image, product_informations[len(product_nodes)*-1:], False)
             arrows = await self.page.querySelectorAll('a[class^=navButton-buttonArrow]')
             for arrow in arrows:
                 nbr = await self.page.evaluate("""(a) => {
@@ -212,48 +210,6 @@ async def extract_data_from_node(webshop, page, eval_fct, node, url):
     #p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
     return p_i
     
-
-def output_data_to_endpoint(shop, data):
-    today = datetime.date.today()
-    for d in data:
-        data["date"] = today
-        data["image"] = data.pop("timestamp")
-        data["webshop"] = shop
-   # res = requests.post(os.environ["APP_URL"] + "/products", json=json.dumps(data))
-    
-def output_screenshot_to_endpoint(img_source, product_data):
-    payload = []
-    try:
-        with Image.open(img_source) as im:
-            for product in product_data:
-                buffer = BytesIO()
-                region = im.crop(product['coords'])
-                region.save(buffer, fomart="PNG")
-                buffer.seek(0)
-                payload.append({"id":product_data["timestamp"], "image": base64.b64encode(buffer).decode()})
-        #res = requests.post(os.environ["APP_URL"] + "/products", json=json.dumps(payload))
-    except OSError:
-        print("oh oh")
-        pass
-
-
-def output_data_to_file(filename, data):
-    """Writes scraped product data to an csv file.
-
-    Args:
-        filename (str): filename to output the data to.
-        data (list): basically everything that is supposed to go into the file
-    """
-    today = datetime.date.today()
-    if not exists(OUTPUT_PATH+filename):
-        with open(OUTPUT_PATH+filename, 'x+', newline='', encoding='utf-8') as csv_file:
-            csv_writer = csv.writer(csv_file, delimiter=';')
-            csv_writer.writerow(headers)
-    with open(OUTPUT_PATH+filename, 'a+', newline='', encoding='utf-8') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=';')
-        for product in data:
-            csv_writer.writerow([today, 'vandenborre', product['product_name'], product['price_current'], product['price_reference'], product['image']])
-
 
 def get_products_from_screenshot(img_source, product_data, saveImg=True):
     """Cuts each individual product from the big screenshot of the page.
