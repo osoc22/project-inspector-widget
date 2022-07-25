@@ -129,7 +129,7 @@ class VandenborreScraper(GenericScraper):
         product_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         for product_node in product_nodes:
-            product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node)
+            product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node, self.url)
             if product_info is not None:
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
@@ -191,7 +191,6 @@ class X2OScraper(GenericScraper):
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
         #res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        print("heyy i workes")
         return product_informations
 
 async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node, url):
@@ -256,9 +255,8 @@ async def main(url, scraper_id):
     else:
         print('webshop not supported')
         await context.close()
-        exit(0)
+        exit(1)
     ret = await scraper.scrape()
-    print(json.dumps(ret))
     res = requests.post("http://localhost:8500/products", json=json.dumps(ret))
     await context.close()
     await browser.disconnect()
