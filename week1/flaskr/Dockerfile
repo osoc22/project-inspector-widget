@@ -29,8 +29,10 @@ RUN pip install -r requirements.txt
 # copy project
 COPY . /flaskr
 
-EXPOSE 8500
+# Make port 8500 available outside this container
+#EXPOSE 8500
 
+#CMD gunicorn app:app
 # Run commands at start up
 RUN chmod u+x ./docker-entrypoint.sh
 ENTRYPOINT ["/bin/bash", "./docker-entrypoint.sh"]

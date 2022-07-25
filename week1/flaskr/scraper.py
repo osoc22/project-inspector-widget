@@ -174,7 +174,7 @@ class X2OScraper(GenericScraper):
             big_image = BytesIO(await self.page.screenshot({'type': 'png', 'fullPage': True}))
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
-                product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node)
+                product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node, self.url)
                 if product_info is not None:
                     product_informations.append(product_info)
             get_products_from_screenshot(big_image, product_informations[len(product_nodes)*-1:], False)
@@ -194,7 +194,7 @@ class X2OScraper(GenericScraper):
         print("heyy i workes")
         return product_informations
 
-async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node):
+async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node, url):
     p_i = await page.evaluate(eval_fct, node)
     if not p_i['product_name'] or not p_i['price_current'] or not p_i['price_reference']:
         return None
@@ -205,6 +205,7 @@ async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node):
     coords = await node.boundingBox()
     p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
     p_i['scraper_id'] = scraper_id
+    p_i['url'] = url
     #p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
     return p_i
     
