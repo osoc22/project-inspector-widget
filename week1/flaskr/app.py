@@ -123,29 +123,6 @@ def get_scraper_results(id):
      
      return json.dumps(products)
 
-@app.route('/scrapers/<id>/export-flagged') 
-def export_flagged_products_to_file(id):
-     scraper = Scraper.find_by_id(id)
-
-     if not scraper:
-             return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
-     
-     products = scraper.products
-
-     for product in products: # Fix
-
-          # Get products of the same name
-          dupl_products = [dupl_product for dupl_product in products if dupl_product.name == product.name]
-          
-          # Compare prices
-          max_price_reference = max([product.price_reference for product in dupl_products])
-          max_price_current = max([product.price_current] for product in dupl_products)
-
-          if max_price_reference > max_price_current:
-               return True
-
-          return False
-
 
 @app.route('/scrapers/<id>/export') 
 def export_scraper_to_file(id):
