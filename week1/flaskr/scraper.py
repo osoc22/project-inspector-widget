@@ -1,16 +1,11 @@
 import asyncio
 import base64
 import json
-import logging
 import os
-from os.path import exists
-import datetime
-import socket
 from pyppeteer import launch
 import time
 from io import BytesIO
 from PIL import Image
-import pyppeteer
 import click
 from price_parser import Price
 import requests
@@ -192,8 +187,6 @@ class X2OScraper(GenericScraper):
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
         #res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        print("heyy i workes")
-        print(product_informations[0])
         return product_informations
 
 async def extract_data_from_node(webshop, page, eval_fct, node, url):
@@ -229,7 +222,6 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
                     region.save(buffer, format="PNG")
                     buffer.seek(0)
                     product["screenshot"] = base64.b64encode(buffer.getvalue()).decode()
-                    print(product["screenshot"])
     except OSError:
         print("oh oh")
         pass
@@ -251,7 +243,6 @@ async def main(url):
     scraper = None
     if ('vandenborre.be' in url):
         scraper = await VandenborreScraper.create(browser, url)
-        print("yes")
     elif ('x2o.be' in url):
         scraper = await X2OScraper.create(browser, url)
     else:

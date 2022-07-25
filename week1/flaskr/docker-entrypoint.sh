@@ -4,5 +4,9 @@ flask db init
 flask db migrate
 flask db upgrade
 
-gunicorn app:app -b 0.0.0.0:8500 #run on port if param env is
-#gunicorn app:app #run on port if param env is
+if [[ $FLASK_ENV = "development" ]]
+then
+    gunicorn app:app -b 0.0.0.0:8500
+else 
+    gunicorn app:app
+fi

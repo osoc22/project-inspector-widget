@@ -12,7 +12,7 @@ with open('data.json') as datafile:
         csv_writer = csv.writer(csv_output, delimiter=';')
         csv_writer.writerow(csv_header)
         for product in data:
-            csv_writer.writerow([product['product_name'], product['price_current'], product['price_reference'], "=HYPERLINK(\"" + product['screenshot_id'] + '.png' + "\";\"Image\")"])
+            csv_writer.writerow([product['product_name'], product['price_current'], product['price_reference'], "=HYPERLINK(\"" + product['screenshot_id'] + '.png' + "\";\"Image\")"]) # give url to showcase screenshot
             img_buffer = BytesIO(b64decode(product['screenshot']))
             zip_file.writestr(product['screenshot_id']+'.png', img_buffer.read())
         csv_output.seek(0)

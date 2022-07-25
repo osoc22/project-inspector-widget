@@ -1,4 +1,3 @@
-from enum import unique
 import flask_sqlalchemy
 
 db = flask_sqlalchemy.SQLAlchemy()
@@ -105,7 +104,7 @@ class Product(db.Model):
     screenshot_id = db.Column(db.Integer, db.ForeignKey('screenshots.id'),
         nullable=False)
 
-    screenshot = db.relationship('Screenshot')
+    screenshot = db.relationship('Screenshot',  cascade='all, delete')
 
     scraper_id = db.Column(db.Integer, db.ForeignKey('scrapers.id'),
         nullable=True)
@@ -116,6 +115,10 @@ class Product(db.Model):
     def find_all(cls):
         return cls.query.all()
 
+    @classmethod
+    def find_by_name(cls, name):
+        return cls.query.filter_by(name=name)
+    
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -152,7 +155,7 @@ class Scraper(db.Model):
 
     webshop = db.relationship('WebShop')
 
-    products = db.relationship("Product")
+    products = db.relationship("Product", cascade='all, delete-orphan')
 
     @classmethod
     def find_by_id(cls, id: int):
@@ -162,10 +165,20 @@ class Scraper(db.Model):
     def find_all(cls):
         return cls.query.all()
 
-    def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+    # def find_products_by_name(self, name):
+    #     self.products.filter()
+    #     session.query().filter(.id.in_(())).all()
 
+    def save_to_db(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
+   
+      
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
@@ -177,7 +190,7 @@ class Scraper(db.Model):
             'url': self.url,
             'start_date': self.start_date.strftime("%d-%m-%Y, %H:%M:%S"),
             'end_date': self.end_date.strftime("%d-%m-%Y, %H:%M:%S"),
-            'last_scanned': self.last_scanned,
+            'last_scanned': self.last_scanned.strftime("%d-%m-%Y, %H:%M:%S") if self.last_scanned else self.last_scanned,
             'webshop': self.webshop.name,
             'status': self.status
        }

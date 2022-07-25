@@ -4,19 +4,28 @@ except ImportError:
     from . import create_app
 
 try:
-   from src.models import Product, WebShop, Screenshot, Scraper                   
+   from src.models import Product, WebShop, Screenshot, Scraper                 
 except ImportError:
    from .src.models import Product, WebShop, Screenshot, Scraper
 from io import BytesIO
 import json
-import base64
-import datetime
+from datetime import datetime
 import tldextract
-from PIL import Image
-from flask import request
-from queue import Queue, Empty
+from flask import Response, request
 from threading import Thread
 import os
+from base64 import b64decode
+import csv
+from io import BytesIO, StringIO
+import json
+import zipfile
+import enum
+
+
+class Status(enum.Enum):
+    running = 'RUNNING'
+    done = 'DONE'
+    error = 'ERROR'
 
 app = create_app()
 
@@ -25,25 +34,10 @@ app = create_app()
 def index():  
      return "Welcome to the backend server"
 
-
-output = []
-
 def start_scraper_cmd(url):
      cmd = f'python scraper.py {url}'
      os.system(cmd)
 
-
-@app.route('/start-scraper', methods=["POST"]) 
-def start_scraper():
-     data = json.loads(request.data)
-     url = data['url']
-     Thread(target=start_scraper_cmd, args=(url,), daemon=True).start()
-    
-
-     # cmd = f'python scraper.py {url}'
-     # os.system(cmd)
-
-     return json.dumps(output)
 
 @app.route('/start-scraper/<id>')
 def start_scraper_by_id(id):
@@ -54,6 +48,8 @@ def start_scraper_by_id(id):
      
      try:
           Thread(target=start_scraper_cmd, args=(scraper.url,), daemon=True).start()
+          scraper.status = Status.running.value
+          scraper.save_to_db()
      except BaseException as err:
           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
      
@@ -86,7 +82,6 @@ def add_scraper():
      return json.dumps({'success': True, 'data': scraper.serialize()}), 201, {'ContentType':'application/json'}
 
 
-
 @app.route('/scrapers', methods=["GET"]) 
 def get_scrapers():
      scrapers = []
@@ -95,6 +90,7 @@ def get_scrapers():
           s = scraper.serialize()
           scrapers.append(s)
      
+     print(scrapers)
      return json.dumps(scrapers)
 
 @app.route('/scrapers/<id>', methods=["GET"]) 
@@ -127,31 +123,63 @@ def get_scraper_results(id):
      
      return json.dumps(products)
 
+@app.route('/scrapers/<id>/export-flagged') 
+def export_flagged_products_to_file(id):
+     scraper = Scraper.find_by_id(id)
 
-@app.route('/mock-products', methods=["POST"])
-def add_mock_products():
-    products = request.json
-
-    for product in products:
-         webshop_name = product['webshop']
-         webshop = WebShop.find_by_name(webshop_name)
-         if not webshop:
-               webshop = WebShop(name=webshop_name)
-               webshop.save_to_db()
-               
-         screenshot_name = str(product['screenshot'])
-         screenshot = Screenshot.find_by_name(screenshot_name)
-         if not screenshot:
-               screenshot = Screenshot(name=screenshot_name, screenshot_file="This is a test")
-               screenshot.save_to_db()
-          
-         product['webshop'] = webshop
-         product['screenshot'] = screenshot
-         p = Product(**product)
+     if not scraper:
+             return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
      
-         p.save_to_db()
-    return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
+     products = scraper.products
 
+     for product in products: # Fix
+
+          # Get products of the same name
+          dupl_products = [dupl_product for dupl_product in products if dupl_product.name == product.name]
+          
+          # Compare prices
+          max_price_reference = max([product.price_reference for product in dupl_products])
+          max_price_current = max([product.price_current] for product in dupl_products)
+
+          if max_price_reference > max_price_current:
+               return True
+
+          return False
+
+
+@app.route('/scrapers/<id>/export') 
+def export_scraper_to_file(id):
+     scraper = Scraper.find_by_id(id)
+
+     if not scraper:
+          return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
+     
+     products = scraper.products
+
+     file_object = BytesIO()
+
+
+     with zipfile.ZipFile(file_object, 'w') as zip_file:
+          csv_output = StringIO()
+          csv_header = ['product name', 'current price', 'reference price', 'date', 'image']
+          csv_writer = csv.writer(csv_output, delimiter=';')
+          csv_writer.writerow(csv_header)
+          for product in products:
+               csv_writer.writerow([product.name, product.price_current, product.price_reference, product.date, "=HYPERLINK(\"" + product.screenshot.name + '.png' + "\";\"Image\")"])
+               img_buffer = BytesIO(b64decode(product.screenshot.screenshot_file))
+               zip_file.writestr(product.screenshot.name + '.png', img_buffer.read())
+          csv_output.seek(0)
+
+          zip_file.writestr('results.csv', csv_output.read())
+     
+     file_object.seek(0)
+     filename = '%s_%s.zip' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
+    
+     return Response(
+          file_object,
+          mimetype="application/zip",
+          headers={"Content-disposition":
+                    f"attachment; filename={filename}"})
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():
@@ -159,56 +187,23 @@ def add_products():
     products = json.loads(request.json)
 
     for product in products:
-         webshop_name = product['webshop']
-         webshop = WebShop.find_by_name(webshop_name)
-         if not webshop:
-               webshop = WebShop(name=webshop_name)
-               webshop.save_to_db()
-               
-         screenshot_name = str(product['screenshot_id'])
-         screenshot = Screenshot.find_by_name(screenshot_name)
-
-         APP_ROOT = os.path.join(os.path.dirname(__file__))
-         img_src = os.path.join(APP_ROOT + '/output/', product['screenshot_id'])
-       
-         with Image.open(img_src) as im:
-               buffer = BytesIO()
-               region = im.crop(product['coords'])
-               region.save(buffer, fomart="PNG")
-               buffer.seek(0)
-               product["screenshot"] = base64.b64encode(buffer).decode()
-               
-         if not screenshot:
-               screenshot = Screenshot(name=screenshot_name, screenshot_file=product["screenshot"])
-               screenshot.save_to_db()
-
-         scraper = Scraper.query.filter_by(url=product['url']).first()
-              
-          # Add products with cords
-          #  with Image.open(img_source) as im:
-          #   for product in product_data:
-          #       buffer = BytesIO()
-          #       region = im.crop(product['coords'])
-          #       region.save(buffer, fomart="PNG")
-          #       buffer.seek(0)
-          #       payload.append({"id":product_data["timestamp"], "image": base64.b64encode(buffer).decode()})
-         product['webshop'] = webshop
-         product['image'] = screenshot
-
-
-         p = Product.query.filter_by(
+          scraper = Scraper.query.filter_by(url=product['url']).first()
+        
+          p = Product.query.filter_by(
                name = product['product_name'],
-               webshop = product['webshop']).first()
-         
-         if not p:
-              p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], screenshot=product['screenshot'], webshop=product['webshop'], date="2022-07-13 11:13:20", scraper=scraper)
+               scraper = scraper).order_by(Product.date.desc()).first()
+  
+          if not p or p.price_current != product['price_current'] or p.price_reference != product['price_reference']:
+              screenshot = Screenshot(name=str(product['screenshot_id']), screenshot_file=product['screenshot'])
+              screenshot.save_to_db()
+              product['screenshot'] = screenshot
+              p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
               p.save_to_db()
-          
-         output.append(p.serialize())
+                   
     
-    if scraper:
-          scraper.status = 'DONE'
-          scraper.last_scanned = datetime.date.today().strftime("%Y-%m-%d %H:%M:%S")
+    if scraper: # Delete if statement
+          scraper.status = Status.done.value
+          scraper.last_scanned = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
           scraper.save_to_db()
   
     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
