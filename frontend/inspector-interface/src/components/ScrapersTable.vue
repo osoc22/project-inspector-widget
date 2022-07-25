@@ -1,18 +1,17 @@
 <template>
   <section>
     <b-table :data="this.getData">
-      <b-table-column   field="id" label="ID" width="40" centered v-slot="props">
-        <p class="text-left" > {{ props.row.id }} </p>
+      <b-table-column field="id" label="ID" width="40" centered v-slot="props">
+        <p class="text-left">{{ props.row.id }}</p>
       </b-table-column>
 
       <b-table-column centered field="name" label="Scraper Name" v-slot="props">
-        <p class="text-left" > {{ props.row.name }} </p>
+        <p class="text-left">{{ props.row.name }}</p>
       </b-table-column>
 
       <!-- <b-table-column field="url" label="URL" centered v-slot="props">
         <p class="text-center" > {{ props.row.url }} </p>
       </b-table-column> -->
-
 
       <b-table-column field="status" label="Status" centered v-slot="props">
         <span
@@ -22,7 +21,7 @@
             'is-warning': props.row.status == 'running',
           }"
         >
-          <p class="text-left" >{{ props.row.status }} </p>
+          <p class="text-left">{{ props.row.status }}</p>
         </span>
       </b-table-column>
 
@@ -40,30 +39,31 @@
           results
         </b-button>
       </b-table-column>
-        
-      <b-table-column >
-        <button @click="showOverview"><mdicon name="information-outline" /></button>
+
+      <b-table-column>
+        <button class="plain" @click="showOverview">
+          <mdicon name="information-outline" />
+        </button>
       </b-table-column>
     </b-table>
     <b-modal
-            v-model="this.getOverview"
-            has-modal-card
-            trap-focus
-            :destroy-on-hide="false"
-            aria-role="dialog"
-            aria-label="Example Modal"
-            close-button-aria-label="Close"
-            aria-modal>
-            <overview-overlay />
+      v-model="this.getOverview"
+      title="Scraper Information"
+      :can-cancel="true"
+      trap-focus
+      
 
+      
+    >
+      <overview-overlay />
     </b-modal>
   </section>
 </template>
 
 <script>
-import axios from 'axios'
-import { mapGetters, mapMutations } from 'vuex'
-import OverviewOverlay from './OverviewOverlay.vue'
+import axios from "axios";
+import { mapGetters, mapMutations } from "vuex";
+import OverviewOverlay from "./OverviewOverlay.vue";
 
 export default {
   name: "ScrapersTable",
@@ -72,29 +72,26 @@ export default {
   },
 
   computed: {
- 
-    ...mapGetters(['getData', 'getOverview'])
+    ...mapGetters(["getData", "getOverview"]),
   },
 
   methods: {
-  ...mapMutations(['SET_DATA', 'SET_OVERVIEW']),
+    ...mapMutations(["SET_DATA", "SET_OVERVIEW"]),
 
-  downloadResults() {
-          console.log("this should download the results")
-      },
-  showOverview() {
-    console.log("this should start the scraper")
-    this.SET_OVERVIEW(true)
-  }
+    downloadResults() {
+      console.log("this should download the results");
+    },
+    showOverview() {
+      console.log("this should start the scraper");
+      this.SET_OVERVIEW(true);
+    },
   },
   created() {
     axios
-    .get('https://bosa-inspector-widget.herokuapp.com/scrapers')
-    .then(result => this.SET_DATA(result.data))
-    
+      .get("https://bosa-inspector-widget.herokuapp.com/scrapers")
+      .then((result) => this.SET_DATA(result.data));
   },
-
-}
+};
 </script>
 
 <style scoped>
@@ -103,8 +100,17 @@ export default {
 }
 
 .text-left {
-    text-align: left;
+  text-align: left;
 }
 
+.plain {
+  background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
 
 </style>

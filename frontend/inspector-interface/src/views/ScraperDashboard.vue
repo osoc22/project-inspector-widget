@@ -13,7 +13,8 @@
                 class="btn"
                 :rounded="true"
                 size="is-medium"
-                @click="startScraper">
+                @click="startScraper"
+                >
             START SCAN </b-button>
         </div>
     </div>
@@ -39,6 +40,11 @@ export default {
         DateSelector,
         InsertName
     },
+    data() {
+        return {
+            refresh_interval : null
+        }
+    },
     computed: {
         ...mapGetters(['getStartDate','getEndDate','getURL', 'getName'])
     },
@@ -61,7 +67,23 @@ export default {
             .then(result => this.SET_DATA(result.data))
           
         },
+        updateData() {
+            axios
+            .get("https://bosa-inspector-widget.herokuapp.com/scrapers")
+            .then((result) => this.SET_DATA(result.data));
+
+
+        },
+
     },
+
+    mounted() {  
+        this.refresh_interval = setInterval(this.updateData, 60000)
+    },
+
+    unmounted() {
+        clearInterval(this.refresh_interval)
+    }
    
 
     
@@ -71,6 +93,7 @@ export default {
 
 
 <style scoped>
+
 .container {
   max-width: 500px;
   margin: 30px auto;
@@ -90,6 +113,7 @@ export default {
     padding: 10px;
     
 }
+
 </style>
 
 
