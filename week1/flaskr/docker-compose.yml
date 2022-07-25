@@ -5,8 +5,8 @@ services:
       platform: linux/x86_64
       build:
         context: chrome/
-      ports:
-        - 9222:9222
+      # ports:
+        # - 9222:9222
     flask_app:
       image: flask_app:latest
       container_name: flask_app
