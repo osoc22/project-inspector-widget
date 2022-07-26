@@ -51,9 +51,6 @@
       title="Scraper Information"
       :can-cancel="true"
       trap-focus
-      
-
-      
     >
       <overview-overlay />
     </b-modal>
