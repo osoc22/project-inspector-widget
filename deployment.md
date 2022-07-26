@@ -73,7 +73,7 @@ using your favorite editor, modify the .env file and replace the following field
     import uuid
     uuid.uuid4().hex
     ```
-    2 Set SECRET_KEY in .env file:
+    2 Set SECRET_KEY in .env file to the generated random string:
     SECRET_KEY = 'this is the random string'
 
 
