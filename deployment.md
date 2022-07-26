@@ -66,6 +66,15 @@ using your favorite editor, modify the .env file and replace the following field
 - POSTGRES_PORT=5432
 - POSTGRES_DB=name of your database
 - DATABASE_URL=postgresql://database_user:database_passowrd@postgres/database_name
+- SECRET_KEY:
+    
+    1 Generate a random string:
+    ```
+    import uuid
+    uuid.uuid4().hex
+    ```
+    2 Set SECRET_KEY in .env file:
+    SECRET_KEY = 'this is the random string'
 
 
 build & run the docker containers using the command
