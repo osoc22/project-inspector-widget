@@ -171,7 +171,7 @@ class Scraper(db.Model):
     start_date = db.Column(db.DateTime(), nullable=False)
     end_date = db.Column(db.DateTime(), nullable=False)
     last_scanned = db.Column(db.DateTime(), nullable=True)
-    status = db.Column(db.String(255), default="RUNNING")
+    status = db.Column(db.String(255), default="QUEUED")
 
     webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
         nullable=False)
