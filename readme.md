@@ -1,30 +1,28 @@
-# Inspector widget
+# Osoc18 gh-pages template
+If you want to use this template, fork it to your /gh-pages branch, break it, fix it, ship it!
 
- See master branch: https://github.com/osoc22/project-inspector-widget
+## No hidden tigers or dragons
+It's just html pages. Start fiddling with the index.html to see your project come to life.
+The css is also just regular css, no compiling needed.
 
-See gh-pages branch: https://github.com/osoc22/project-inspector-widget/tree/gh-pages
+## Styleguide
+There's a tiny style guide that shows you what elements you have at your disposal.
 
+## Where is it deployed?
+The site for your project will be: https://osoc18.github.io/[NAMEOFYOURREPO]
+The site for this template can be found here: https://osoc18.github.io/website/
 
-This repo contains the website and some documentaion for the Inspector Widget project.
-If you want to find out more about the project, take a look at the [GitHub pages](https://osoc22.github.io/project-inspector-widget) website.
+--
 
+## How to reuse
+* Go to your repo. Make a new branch called "gh-pages".
+* Make sure you remove all the files that were in that folder — but the .git folder.
+* Copy everything from this gh-pages folder into your gh-pages branch
+* Go to "settings" and make sure your gh-pages branch is set as github page (you will also find your url here).
+* Fiddle with the html and css and party!
 
-## Documentation
+### Help, I can't set my gh-pages branch as github page!
+Ask your coach or an other owner of your repo to do it for you.
 
-**Look at:**
-
-[Frontend](https://github.com/osoc22/project-inspector-widget/blob/master/deployment.md)
-
-[Backend](https://github.com/osoc22/project-inspector-widget/blob/master/week1/readme.md)
-
-[Deployment](https://github.com/osoc22/project-inspector-widget/blob/master/deployment.md)
-
-## Built With
-
-This section contains the major frameworks used to create our project.
-
-* VueJs
-* Flask
-
-## See articles
-Medium: [A tool to support honest online shopping](https://medium.com/@camillafrison9/a-tool-to-support-honest-online-shopping-41977cedeb61)
+### Help, my css doesn't work when I copy everything!
+You might have kept the gitignore file. That's okay, just make sure you open it and remove the "css" folder, because it's ignoring the files...
