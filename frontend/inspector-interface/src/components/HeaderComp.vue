@@ -22,7 +22,7 @@ export default {
 
     methods: {
         goToLanding() {
-            this.$router.replace('/')
+            this.$router.push({name:'home'})
         }
     }
 

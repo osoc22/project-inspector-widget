@@ -1,7 +1,7 @@
 <template>
     <div class="container move-down">
-        <b-button class="login" @click="goToDashboard">Log In </b-button>
-        <b-button class="signup" outlined> Sign Up </b-button>
+        <b-button class="login" @click="goToLogin">Log In </b-button>
+        <b-button class="signup" @click="goToSignup" outlined> Sign Up </b-button>
     </div>
 </template>
 
@@ -11,8 +11,11 @@ export default {
     name: 'LoginSignUp',
 
     methods: {
-        goToDashboard() {
-            this.$router.push('/dashboard')
+        goToLogin() {
+            this.$router.push('signin')
+        },
+        goToSignup() {
+            this.$router.push('signup')
         }
     }
 }
@@ -20,9 +23,10 @@ export default {
 
 <style scoped>
 .move-down{
-    margin-top: 100px;
+    margin-top: 20px;
     margin-left: 30px;
     margin-right: 30px;
+    margin-bottom: 20px;
 }
 
 .login {

@@ -45,7 +45,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['getStartDate','getEndDate','getURL', 'getName'])
+        ...mapGetters(['getStartDate','getEndDate','getURL', 'getName', 'getAccessToken'])
     },
     
     methods: {
@@ -62,14 +62,22 @@ export default {
             .then(console.log("scraper has been added"))
 
             axios
-            .get('https://bosa-inspector-widget.herokuapp.com/scrapers')
+            .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
+                headers: {
+                    'Authorization': `token ${this.getAccessToken}`
+                }
+            })
             .then(result => this.SET_DATA(result.data))
           
         },
         updateData() {
-            axios
-            .get("https://bosa-inspector-widget.herokuapp.com/scrapers")
-            .then((result) => this.SET_DATA(result.data));
+             axios
+            .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
+                headers: {
+                    'Authorization': `token ${this.getAccessToken}`
+                }
+            })
+            .then(result => this.SET_DATA(result.data))
 
 
         },
