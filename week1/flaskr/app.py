@@ -2,7 +2,6 @@ try:
     from  __init__ import create_app                          
 except ImportError:
     from . import create_app
-
 try:
    from src.models import Product, WebShop, Screenshot, Scraper, User, TokenBlocklist     
 except ImportError:
