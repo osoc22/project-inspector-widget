@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" v-if="scraper_data">
     <div class="content">
       <b-table :data="[this.getData[0]]" :card-layout="true">
         <b-table-column
@@ -39,21 +39,28 @@
 
         <b-table-column label="Results" centered v-slot="props">
           <div>
-          <b-button
-            @click="downloadResults"
-            size="is-small"
-            rounded
-            outlined
-            :type="{
-              'is-warning': props.row.status == 'running',
-              'is-success': props.row.status == 'finished',
-            }"
-          >
-            results
-          </b-button>
-          <b-button @click="deleteScraper(props.row.id)" size="is-small" rounded outlined type="is-danger">
-            DELETE
-          </b-button>
+            <b-button
+              @click="downloadResults"
+              size="is-small"
+              rounded
+              outlined
+              :type="{
+                'is-warning': props.row.status == 'running',
+                'is-success': props.row.status == 'finished',
+              }"
+            >
+              results
+            </b-button>
+            <b-button
+              @click="() => deleteScraper(props.row.id)"
+              size="is-small"
+              rounded
+              outlined
+              type="is-danger"
+            >
+              DELETE
+            </b-button>
+           
           </div>
         </b-table-column>
       </b-table>
@@ -63,39 +70,49 @@
 
 <script>
 import { mapGetters } from "vuex";
-import axios from 'axios'
+import axios from "axios";
 export default {
   name: "OverviewOverlay",
 
   computed: {
     ...mapGetters(["getData", "getAccessToken"]),
   },
+  props: {
+    scraper_data: {
+      type: Object,
+      default: null,
+      required: true,
+    },
+  },
 
   methods: {
     deleteScraper(id) {
-      const delete_request = 'https://bosa-inspector-widget.herokuapp.com/scrapers/' + String(id)
-      console.log("this should delete the scraper")
-      axios
-      .delete(delete_request, {
+      const delete_request =
+        "https://bosa-inspector-widget.herokuapp.com/scrapers/" + String(id);
+      console.log("this should delete the scraper");
+      axios.delete(delete_request, {
         headers: {
-            Authorization: `Bearer ${this.getAccessToken}`,
-          },
-      })
+          Authorization: `Bearer ${this.getAccessToken}`,
+        },
+      });
     },
     downloadResults(id) {
-      const download_request = 'https://bosa-inspector-widget.herokuapp.com/scrapers/' + String(id) +'/export'
-      console.log("this should download the results")
+      const download_request =
+        "https://bosa-inspector-widget.herokuapp.com/scrapers/" +
+        String(id) +
+        "/export";
+      console.log("this should download the results");
       axios
-      .get(download_request, {
-        headers: {
+        .get(download_request, {
+          headers: {
             Authorization: `Bearer ${this.getAccessToken}`,
           },
-      })
-      .then(console.log("file was downloaded"))
+        })
+        .then(console.log("file was downloaded"));
+    },
+   
+  },
 
-    }
-  }
-  
 };
 </script>
 
@@ -104,7 +121,7 @@ export default {
   max-width: 500px;
   margin: 30px auto;
   overflow: auto;
-  border: 5px solid #2782C6;
+  border: 5px solid #2782c6;
   border-radius: 5px;
   position: relative;
   top: 30px;

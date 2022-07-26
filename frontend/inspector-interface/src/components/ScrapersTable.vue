@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <div>
     <b-table :data="this.getData">
       <b-table-column field="id" label="ID" width="40" centered v-slot="props">
         <p class="text-left">{{ props.row.id }}</p>
@@ -40,21 +40,23 @@
         </b-button>
       </b-table-column>
 
-      <b-table-column>
-        <button class="plain" @click="showOverview">
+      <b-table-column v-slot="props">
+        <button class="plain" @click="() => showOverview(props.row)">
           <mdicon name="information-outline" />
         </button>
       </b-table-column>
     </b-table>
     <b-modal
-      v-model="this.getOverview"
+      v-model="show_overview"
       title="Scraper Information"
-      :can-cancel="true"
+      has-modal-card
       trap-focus
+      :destroy-on-hide="false"
+      :on-cancel="closeOverview"
     >
-      <overview-overlay />
+      <overview-overlay :scraper_data="selected_scraper" />
     </b-modal>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -64,6 +66,13 @@ import OverviewOverlay from "./OverviewOverlay.vue";
 
 export default {
   name: "ScrapersTable",
+
+  data() {
+    return {
+      show_overview: false,
+      selected_scraper: null
+    }
+  },
   components: {
     OverviewOverlay,
   },
@@ -78,20 +87,24 @@ export default {
     downloadResults() {
       console.log("this should download the results");
     },
-    showOverview() {
-      console.log("this should start the scraper");
-      this.SET_OVERVIEW(true);
+    showOverview(input) {
+      this.show_overview = true
+      this.selected_scraper = input
     },
+    closeOverview() {
+      this.show_overview = false
+      this.selected_scraper = null
+    }
   },
   created() {
-    console.log(this.getAccessToken)
+    console.log(this.getAccessToken);
     axios
-            .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
-                headers: {
-                    Authorization: `Bearer ${this.getAccessToken}`
-                }
-            })
-            .then(result => this.SET_DATA(result.data))
+      .get("https://bosa-inspector-widget.herokuapp.com/scrapers/user", {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken}`,
+        },
+      })
+      .then((result) => this.SET_DATA(result.data));
   },
 };
 </script>
@@ -107,12 +120,11 @@ export default {
 
 .plain {
   background: none;
-	color: inherit;
-	border: none;
-	padding: 0;
-	font: inherit;
-	cursor: pointer;
-	outline: inherit;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
 }
-
 </style>
