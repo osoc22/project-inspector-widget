@@ -4,10 +4,12 @@
       <b-datepicker
         v-model="start_date"
         placeholder="Select start date"
+        class="halfWidth"
       />
       <b-datepicker
         v-model="end_date"
         placeholder="Select end date"
+        class="halfWidth"
 
       />
     </b-field>
@@ -76,6 +78,10 @@ export default {
   margin: 10px auto;
   width: 100%;
   padding: 50px;
+}
+
+.halfWidth {
+  width: 50%;
 }
 
 

@@ -1,4 +1,9 @@
 import flask_sqlalchemy
+from sqlalchemy.dialects.postgresql import UUID
+import jwt
+import uuid
+import os
+from datetime import datetime
 
 db = flask_sqlalchemy.SQLAlchemy()
 
@@ -6,23 +11,41 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
+    public_id =  db.Column(UUID(as_uuid=True), default=uuid.uuid4)
     email = db.Column(db.String(255), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
     email_confirmed_at = db.Column(db.DateTime())
     username = db.Column(db.String(50), nullable=False, unique=True)
     isAdmin = db.Column(db.Boolean(), nullable=False, default=False) 
+    authenticated = db.Column(db.Boolean(), nullable=False, default=False) 
     webshops = db.relationship('WebShop', secondary='user_webshops', back_populates='users')
+    scrapers = db.relationship('Scraper')
 
     @classmethod
     def find_by_username(cls, username: str):
         return cls.query.filter_by(username=username).first()
 
     @classmethod
+    def find_by_email(cls, email: str):
+        return cls.query.filter_by(email=email).first()
+
+    @classmethod
+    def find_by_public_id(cls, public_id: str):
+        return cls.query.filter_by(public_id=public_id).first()
+
+    @classmethod
     def find_all(cls):
         return cls.query.all()
 
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
+   
 
     def delete_from_db(self):
         db.session.delete(self)
@@ -155,6 +178,11 @@ class Scraper(db.Model):
 
     webshop = db.relationship('WebShop')
 
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+        nullable=False)
+
+    user = db.relationship('User')
+
     products = db.relationship("Product", cascade='all, delete-orphan')
 
     @classmethod
@@ -192,5 +220,29 @@ class Scraper(db.Model):
             'end_date': self.end_date.strftime("%d-%m-%Y, %H:%M:%S"),
             'last_scanned': self.last_scanned.strftime("%d-%m-%Y, %H:%M:%S") if self.last_scanned else self.last_scanned,
             'webshop': self.webshop.name,
-            'status': self.status
+            'status': self.status,
+            'owner': self.user.username
        }
+
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False)
+
+    
+    @classmethod
+    def find_by_jti(cls, jti: str):
+        return cls.query.filter_by(jti=jti).first()
+
+    def save_to_db(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
