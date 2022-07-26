@@ -2,17 +2,20 @@
   <div class="columns move-down">
     <div class="column">
       <info-banner
-        text="Please login if you are a user, or signup if this is the first time you are using the application (you can login/signup using the buttons below)"
+        title= "STEP 1"
+        text="Please login if you are a user, or signup if this is the first time you are using the application"
       />
     </div>
     <div class="column">
       <info-banner
-        text="Please login if you are a user, or signup if this is the first time you are using the application (you can login/signup using the buttons below)"
+        title="STEP 2"
+        text="Insert the URL of the product page you want to scan and select the duration of the scan"
       />
     </div>
     <div class="column">
       <info-banner
-        text="Please login if you are a user, or signup if this is the first time you are using the application (you can login/signup using the buttons below)"
+        title="STEP 3" 
+        text="Download the results and view suspicious products"
       />
     </div>
   </div>

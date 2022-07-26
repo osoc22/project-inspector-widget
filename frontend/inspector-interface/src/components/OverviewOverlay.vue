@@ -104,7 +104,7 @@ export default {
   max-width: 500px;
   margin: 30px auto;
   overflow: auto;
-  border: 5px solid #d43e25;
+  border: 5px solid #2782C6;
   border-radius: 5px;
   position: relative;
   top: 30px;

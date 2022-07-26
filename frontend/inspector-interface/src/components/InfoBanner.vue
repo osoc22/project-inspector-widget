@@ -1,10 +1,10 @@
 <template>
 <nav class="panel">
   <p class="panel-heading specific_color">
-    STEP 1
+    {{title}}
   </p>
   <div class="panel-block">
-    <p> {{text}}</p>
+    <p class="info"> {{text}}</p>
   </div>
 
   <div>
@@ -23,6 +23,7 @@ export default {
 
     props: {
         text: String,
+        title: String
     }
 
     
@@ -34,6 +35,10 @@ export default {
 .specific_color {
   background-color: #2782C6;
   color: white;
+}
+
+.info {
+  font-size: 20px;
 }
 
 </style>
