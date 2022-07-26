@@ -21,7 +21,7 @@ class GenericScraper:
     """
 
     @classmethod
-    async def create(cls, browser, url, scraper_id):
+    async def create(cls, browser, url):
         """Creates a scraper from a browser instance and url
 
         Args:
@@ -34,7 +34,6 @@ class GenericScraper:
         self = cls()
         self.page = await browser.newPage()
         self.url = url
-        self.scraper_id = scraper_id
         self.generic_eval = """(n) => {{
                     let ob = {{
                         "product_name" : null,
@@ -53,6 +52,9 @@ class GenericScraper:
                     }}
                     if (ob.price_reference == null) {{
                         ob.price_reference = ob.price_current
+                    }}
+                    if (n.querySelector('{3}')) {{
+                        ob.product_url = n.querySelector('{3}').href
                     }}
                     return ob
                 }}"""
@@ -82,18 +84,18 @@ class VandenborreScraper(GenericScraper):
     """
 
     @classmethod
-    async def create(cls, browser, url, scraper_id):
+    async def create(cls, browser, url):
         self = cls()
         self.url = url
-        self.scraper_id = scraper_id
-        par = await super().create(browser, url, scraper_id)
+        par = await super().create(browser, url)
         self.page = par.page
         self.filename = "vandenborre.csv"
         self.webshop = "x2o"
         self.price_current_field = '.current'
         self.price_reference_field = '.reference'
         self.product_name_field = '.productname'
-        self.eval_fct = par.generic_eval.format(self.product_name_field, self.price_current_field, self.price_reference_field)
+        self.product_url_field = 'a[class^="js-product-click"]'
+        self.eval_fct = par.generic_eval.format(self.product_name_field, self.price_current_field, self.price_reference_field, self.product_url_field)
         return self
 
     async def go_to_page(self, url):
@@ -129,7 +131,7 @@ class VandenborreScraper(GenericScraper):
         product_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         for product_node in product_nodes:
-            product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node, self.url)
+            product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
             if product_info is not None:
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
@@ -140,18 +142,18 @@ class X2OScraper(GenericScraper):
     """
 
     @classmethod
-    async def create(cls, browser, url, scraper_id):
+    async def create(cls, browser, url):
         self = cls()
         self.url = url
-        self.scraper_id = scraper_id
-        par = await super().create(browser, url, scraper_id)
+        par = await super().create(browser, url)
         self.page = par.page
         self.filename = "X20.csv"
         self.webshop = "x2o"
         self.price_current_field = 'span[class^="price-"]'
         self.price_reference_field = 'p[class^="PromoAdvantageEuro-oldPrice-"]'
         self.product_name_field = 'a[class^="item-nameWrapper-"]'
-        self.eval_fct = par.generic_eval.format(self.product_name_field, self.price_current_field, self.price_reference_field)
+        self.product_url_field = 'a[class^="item-nameWrapper-"]'
+        self.eval_fct = par.generic_eval.format(self.product_name_field, self.price_current_field, self.price_reference_field, self.product_url_field)
         return self
 
     async def go_to_page(self, url):
@@ -173,7 +175,7 @@ class X2OScraper(GenericScraper):
             big_image = BytesIO(await self.page.screenshot({'type': 'png', 'fullPage': True}))
             product_nodes = await self.page.querySelectorAll('div.gallery-item')
             for product_node in product_nodes:
-                product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node, self.url)
+                product_info = await extract_data_from_node(self.webshop, self.page, self.eval_fct, product_node)
                 if product_info is not None:
                     product_informations.append(product_info)
             get_products_from_screenshot(big_image, product_informations[len(product_nodes)*-1:], False)
@@ -191,7 +193,7 @@ class X2OScraper(GenericScraper):
                 }""")
         return product_informations
 
-async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node, url):
+async def extract_data_from_node(webshop, page, eval_fct, node):
     p_i = await page.evaluate(eval_fct, node)
     if not p_i['product_name'] or not p_i['price_current'] or not p_i['price_reference']:
         return None
@@ -201,8 +203,6 @@ async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node, url)
     p_i['webshop'] = webshop
     coords = await node.boundingBox()
     p_i['coords'] = (coords['x'], coords['y'], coords['x']+coords['width'], coords['y']+coords['height'])
-    p_i['scraper_id'] = scraper_id
-    p_i['url'] = url
     #p_i['image'] = "=HYPERLINK(\"" + timestamp + '.png' + "\";\"Image\")"
     return p_i
     
@@ -248,15 +248,15 @@ async def main(url, scraper_id):
     context = await browser.createIncognitoBrowserContext()
     scraper = None
     if ('vandenborre.be' in url):
-        scraper = await VandenborreScraper.create(context, url, scraper_id)
+        scraper = await VandenborreScraper.create(context, url)
     elif ('x2o.be' in url):
-        scraper = await X2OScraper.create(context, url, scraper_id)
+        scraper = await X2OScraper.create(context, url)
     else:
         print('webshop not supported')
         await context.close()
         exit(1)
     ret = await scraper.scrape()
-    res = requests.post("http://localhost:8500/products", json=json.dumps(ret))
+    res = requests.post("http://localhost:8500/products", json=json.dumps({"scraper_id" : scraper_id, "products" : ret}))
     await context.close()
     await browser.disconnect()
 

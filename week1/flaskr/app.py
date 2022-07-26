@@ -162,6 +162,10 @@ def get_scraper_results(id):
      return json.dumps(products)
 
 
+@app.route('/check-queue')
+def check_queue():
+     scrapers = get_scrapers
+
 @app.route('/scrapers/<id>/export')
 @jwt_required()
 def export_scraper_to_file(id):
@@ -199,30 +203,27 @@ def export_scraper_to_file(id):
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():
-    scraper = None 
-    products = json.loads(request.json)
-
-    for product in products:
-          scraper = Scraper.query.filter_by(url=product['url']).first()
-        
+     data = json.loads(request.json)
+     scraper = Scraper.find_by_id(data['scraper_id'])
+     for product in data['products']:        
           p = Product.query.filter_by(
-               name = product['product_name'],
-               scraper = scraper).order_by(Product.date.desc()).first()
-  
+                name = product['product_name'],
+                scraper = scraper).order_by(Product.date.desc()).first()
+
           if not p or p.price_current != product['price_current'] or p.price_reference != product['price_reference']:
-              screenshot = Screenshot(name=str(product['screenshot_id']), screenshot_file=product['screenshot'])
-              screenshot.save_to_db()
-              product['screenshot'] = screenshot
-              p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
-              p.save_to_db()
+               screenshot = Screenshot(name=str(product['screenshot_id']), screenshot_file=product['screenshot'])
+               screenshot.save_to_db()
+               product['screenshot'] = screenshot
+               p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], product_url=product['product_url'],screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
+               p.save_to_db()
                    
     
-    if scraper: # Delete if statement
+     if scraper: # Delete if statement
           scraper.status = Status.done.value
           scraper.last_scanned = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
           scraper.save_to_db()
-  
-    return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
+
+     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
 
 
 @app.route('/products', methods=["GET"])
