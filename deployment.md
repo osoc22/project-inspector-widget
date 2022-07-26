@@ -62,8 +62,8 @@ cd project-inspector-widget/week1/flaskr
 using your favorite editor, modify the .env file and replace the following fields with values for your needs :
 - POSTGRES_USER=database user name goes here
 - POSTGRES_PASSWORD=database user password goes there
-- POSTGRES_HOST -> do not change
-- POSTGRES_PORT -> do not change
+- POSTGRES_HOST=postgres
+- POSTGRES_PORT=5432
 - POSTGRES_DB=name of your database
 - DATABASE_URL=postgresql://database_user:database_passowrd@postgres/database_name
 
