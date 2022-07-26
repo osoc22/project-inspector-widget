@@ -22,3 +22,5 @@ database = os.environ['POSTGRES_DB']
 port = os.environ['POSTGRES_PORT']
 
 DATABASE_CONNECTION_URI = os.environ['DATABASE_URL']
+
+SECRET_KEY = os.environ['SECRET_KEY']
