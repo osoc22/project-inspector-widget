@@ -104,10 +104,10 @@ class Product(db.Model):
     screenshot_id = db.Column(db.Integer, db.ForeignKey('screenshots.id'),
         nullable=False)
 
-    screenshot = db.relationship('Screenshot')
+    screenshot = db.relationship('Screenshot',  cascade='all, delete')
 
     scraper_id = db.Column(db.Integer, db.ForeignKey('scrapers.id'),
-        nullable=False)
+        nullable=True)
 
     scraper = db.relationship('Scraper')
 
@@ -115,6 +115,10 @@ class Product(db.Model):
     def find_all(cls):
         return cls.query.all()
 
+    @classmethod
+    def find_by_name(cls, name):
+        return cls.query.filter_by(name=name)
+    
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -140,25 +144,41 @@ class Scraper(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    url = db.Column(db.String(), nullable=False)
+    url = db.Column(db.String(), nullable=False, unique=True)
     start_date = db.Column(db.DateTime(), nullable=False)
     end_date = db.Column(db.DateTime(), nullable=False)
     last_scanned = db.Column(db.DateTime(), nullable=True)
-
+    status = db.Column(db.String(255), default="RUNNING")
 
     webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
         nullable=False)
 
     webshop = db.relationship('WebShop')
 
+    products = db.relationship("Product", cascade='all, delete-orphan')
+
+    @classmethod
+    def find_by_id(cls, id: int):
+        return cls.query.filter_by(id=id).first()
+
     @classmethod
     def find_all(cls):
         return cls.query.all()
 
-    def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+    # def find_products_by_name(self, name):
+    #     self.products.filter()
+    #     session.query().filter(.id.in_(())).all()
 
+    def save_to_db(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
+   
+      
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
@@ -170,6 +190,7 @@ class Scraper(db.Model):
             'url': self.url,
             'start_date': self.start_date.strftime("%d-%m-%Y, %H:%M:%S"),
             'end_date': self.end_date.strftime("%d-%m-%Y, %H:%M:%S"),
-            'last_scanned': self.last_scanned,
-            'webshop': self.webshop.name
+            'last_scanned': self.last_scanned.strftime("%d-%m-%Y, %H:%M:%S") if self.last_scanned else self.last_scanned,
+            'webshop': self.webshop.name,
+            'status': self.status
        }

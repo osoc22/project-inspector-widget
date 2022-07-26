@@ -25,13 +25,14 @@
 
 
 ### To run services as a docker container
-* Set environment variables
-    
-    ```cp .env.example .env```
 
 * Enter directory
 
     ``` cd flaskr```
+
+* Set environment variables
+    
+    ```cp .env.example .env```
 
 * Run using
 
@@ -57,3 +58,4 @@ There are mainly four models
 * **Webshop** - which contains details about the webshops
 * **Screenshot** - which contains details about the screenshots
 * **Product** - which contains details about the products
+* **Scraper** - which contains details about the scrapers
