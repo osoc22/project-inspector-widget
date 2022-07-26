@@ -69,7 +69,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["getData", "getOverview"]),
+    ...mapGetters(["getData", "getOverview", "getAccessToken"]),
   },
 
   methods: {
@@ -84,9 +84,14 @@ export default {
     },
   },
   created() {
+    console.log(this.getAccessToken)
     axios
-      .get("https://bosa-inspector-widget.herokuapp.com/scrapers")
-      .then((result) => this.SET_DATA(result.data));
+            .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
+                headers: {
+                    Authorization: `Bearer ${this.getAccessToken}`
+                }
+            })
+            .then(result => this.SET_DATA(result.data))
   },
 };
 </script>

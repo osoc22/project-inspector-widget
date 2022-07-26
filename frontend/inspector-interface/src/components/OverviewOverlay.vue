@@ -68,7 +68,7 @@ export default {
   name: "OverviewOverlay",
 
   computed: {
-    ...mapGetters(["getData"]),
+    ...mapGetters(["getData", "getAccessToken"]),
   },
 
   methods: {
@@ -76,13 +76,22 @@ export default {
       const delete_request = 'https://bosa-inspector-widget.herokuapp.com/scrapers/' + String(id)
       console.log("this should delete the scraper")
       axios
-      .delete(delete_request)
+      .delete(delete_request, {
+        headers: {
+            Authorization: `Bearer ${this.getAccessToken}`,
+          },
+      })
     },
     downloadResults(id) {
       const download_request = 'https://bosa-inspector-widget.herokuapp.com/scrapers/' + String(id) +'/export'
       console.log("this should download the results")
       axios
-      .get(download_request)
+      .get(download_request, {
+        headers: {
+            Authorization: `Bearer ${this.getAccessToken}`,
+          },
+      })
+      .then(console.log("file was downloaded"))
 
     }
   }
@@ -95,7 +104,7 @@ export default {
   max-width: 500px;
   margin: 30px auto;
   overflow: auto;
-  border: 5px solid #d43e25;
+  border: 5px solid #2782C6;
   border-radius: 5px;
   position: relative;
   top: 30px;
