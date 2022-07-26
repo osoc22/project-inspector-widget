@@ -8,7 +8,7 @@ WORKDIR /flaskr
 
 # set environment variables
 ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
+ENV FLASK_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 RUN apt-get update && apt-get install curl gnupg -y \

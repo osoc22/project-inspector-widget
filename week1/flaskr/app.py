@@ -300,7 +300,7 @@ def get_current_user():
     current_user_id = get_jwt_identity()
     user = User.find_by_public_id(current_user_id)
     
-    return json.dumps({"id": user.public_id, "email": user.email, "username": user.username }), 200
+    return json.dumps({"id": str(user.public_id), "email": user.email, "username": user.username }), 200
 
 @app.route("/scrapers/user", methods=["GET"])
 @jwt_required()
