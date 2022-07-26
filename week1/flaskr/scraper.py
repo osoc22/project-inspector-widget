@@ -129,7 +129,7 @@ class VandenborreScraper(GenericScraper):
         product_nodes = await self.page.querySelectorAll('div.product-container > div.product')
 
         for product_node in product_nodes:
-            product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node)
+            product_info = await extract_data_from_node(self.webshop, self.scraper_id, self.page, self.eval_fct, product_node, self.url)
             if product_info is not None:
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
