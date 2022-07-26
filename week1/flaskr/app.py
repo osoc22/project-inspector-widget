@@ -17,6 +17,7 @@ from flask_jwt_extended import create_refresh_token
 from flask import Response, request, jsonify
 from threading import Thread
 import os
+import queue
 from base64 import b64decode
 import csv
 from io import BytesIO, StringIO
@@ -24,6 +25,31 @@ import json
 import zipfile
 import enum
 
+q = queue.Queue()
+
+def scraping_queue(ctx):
+     def worker(ctx):
+          with ctx.app_context():
+               while True:
+                    scraper_id = q.get()
+                    scraper = Scraper.find_by_id(scraper_id)
+                    if scraper:
+                         try:
+                              scraper.status = Status.running.value
+                              scraper.save_to_db()
+                              os.system(f'python scraper.py {scraper.url} {scraper.id}')
+                         except:
+                              print(f'there was an error while scraping {scraper.url}')
+                              scraper.status = Status.error.value
+                         else:
+                              scraper.status = Status.done.value
+                         finally:
+                              scraper.save_to_db()
+                    else:
+                         print("there was no scraper with that id, lets remove it from the queue")
+                    q.task_done()
+     Thread(target=worker, daemon=True, args=[ctx]).start()
+     q.join()
 
 class Status(enum.Enum):
     running = 'RUNNING'
@@ -31,6 +57,7 @@ class Status(enum.Enum):
     error = 'ERROR'
 
 app = create_app()
+Thread(target=scraping_queue, args=[app]).start()
 
 @app.route('/') 
 def index():  
@@ -48,16 +75,17 @@ def start_scraper_by_id(id):
 
      if not scraper:
           return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
-     
-     try:
-          Thread(target=start_scraper_cmd, args=(scraper.url,), daemon=True).start()
-          scraper.status = Status.running.value
-          scraper.save_to_db()
-     except BaseException as err:
-          return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
+     q.put(id)
+     return "added scraper to the queue"
+     # try:
+     #      Thread(target=start_scraper_cmd, args=(scraper.url,), daemon=True).start()
+     #      scraper.status = Status.running.value
+     #      scraper.save_to_db()
+     # except BaseException as err:
+     #      return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
      
 
-     return json.dumps({'success': True, 'messsage': 'Scraper ran succesfully'}), 200, {'ContentType':'application/json'}
+     # return json.dumps({'success': True, 'messsage': 'Scraper ran succesfully'}), 200, {'ContentType':'application/json'}
 
 
 
@@ -82,9 +110,10 @@ def add_scraper():
      try:
           scraper.save_to_db()
           # Start the scraper
-          Thread(target=start_scraper_cmd, args=(scraper.url,), daemon=True).start()
+          q.put(scraper.id)
      except BaseException as err:
           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
+       
      
      return json.dumps({'success': True, 'data': scraper.serialize()}), 201, {'ContentType':'application/json'}
 
