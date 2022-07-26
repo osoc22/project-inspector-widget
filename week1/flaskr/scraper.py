@@ -133,7 +133,6 @@ class VandenborreScraper(GenericScraper):
             if product_info is not None:
                 product_informations.append(product_info)
         get_products_from_screenshot(big_image, product_informations, False)
-        # res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
         return product_informations
 
 class X2OScraper(GenericScraper):
@@ -190,8 +189,6 @@ class X2OScraper(GenericScraper):
                     let arrows = document.querySelectorAll('a[class^=navButton-buttonArrow]')
                     arrows[arrows.length - 1].dispatchEvent(new MouseEvent("click", {bubbles: true, view: window, cancelable: true}))
                 }""")
-        #res = requests.post("http://localhost:8500/products", json=json.dumps(product_informations))
-        print("heyy i workes")
         return product_informations
 
 async def extract_data_from_node(webshop, scraper_id, page, eval_fct, node, url):
@@ -229,7 +226,6 @@ def get_products_from_screenshot(img_source, product_data, saveImg=True):
                     buffer.seek(0)
                     product["screenshot"] = base64.b64encode(buffer.getvalue()).decode()
     except OSError:
-        print("oh oh")
         pass
 
 
@@ -245,8 +241,10 @@ async def main(url, scraper_id):
         CHROME_IP = socket.getaddrinfo('chrome',0)[0][4][0]
     except socket.gaierror:
         CHROME_IP = '127.0.0.1'
-    pyppeteer.DEBUG = True
-    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222', logLevel=logging.DEBUG)
+    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222')
+    for old_context in browser.browserContexts:
+        if old_context.isIncognito():
+            await old_context.close()
     context = await browser.createIncognitoBrowserContext()
     scraper = None
     if ('vandenborre.be' in url):
@@ -256,13 +254,11 @@ async def main(url, scraper_id):
     else:
         print('webshop not supported')
         await context.close()
-        exit(0)
+        exit(1)
     ret = await scraper.scrape()
-    print(json.dumps(ret))
     res = requests.post("http://localhost:8500/products", json=json.dumps(ret))
     await context.close()
     await browser.disconnect()
-    return ret
 
 @click.command()
 @click.argument('url')
