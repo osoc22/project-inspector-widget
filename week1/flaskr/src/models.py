@@ -1,3 +1,4 @@
+from itertools import product
 import flask_sqlalchemy
 from sqlalchemy.dialects.postgresql import UUID
 import jwt
@@ -118,6 +119,7 @@ class Product(db.Model):
     price_current = db.Column(db.Float, nullable=False)
     price_reference = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime(), nullable=False)
+    product_url = db.Column(db.String(255), nullable=False)
 
     webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
         nullable=False)
@@ -157,6 +159,7 @@ class Product(db.Model):
             'article_number': self.article_number,
             'price_current': self.price_current,
             'price_reference': self.price_reference,
+            'product_url': self.product_url,
             'screenshot': self.screenshot.name,
             'webshop': self.webshop.name,
             'date': self.date.strftime("%d-%m-%Y, %H:%M:%S")
@@ -167,11 +170,11 @@ class Scraper(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    url = db.Column(db.String(), nullable=False, unique=True)
+    url = db.Column(db.String(), nullable=False)
     start_date = db.Column(db.DateTime(), nullable=False)
     end_date = db.Column(db.DateTime(), nullable=False)
     last_scanned = db.Column(db.DateTime(), nullable=True)
-    status = db.Column(db.String(255), default="RUNNING")
+    status = db.Column(db.String(255), default="QUEUED")
 
     webshop_id = db.Column(db.Integer, db.ForeignKey('webshops.id'),
         nullable=False)

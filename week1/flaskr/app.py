@@ -17,6 +17,7 @@ from flask_jwt_extended import create_refresh_token
 from flask import Response, request, jsonify
 from threading import Thread
 import os
+import queue
 from base64 import b64decode
 import csv
 from io import BytesIO, StringIO
@@ -24,13 +25,38 @@ import json
 import zipfile
 import enum
 
+q = queue.Queue()
+
+def scraping_queue(ctx):
+     def worker(ctx):
+          with ctx.app_context():
+               while True:
+                    scraper_id = q.get()
+                    scraper = Scraper.find_by_id(scraper_id)
+                    try:
+                         scraper.status = Status.running.value
+                         scraper.save_to_db()
+                         if os.system(f'python scraper.py {scraper.url} {scraper.id}') != 0:
+                              raise Exception("scraper encountered an error")
+                    except:
+                         print(f'there was an error while scraping {scraper.url}')
+                         scraper.status = Status.error.value
+                    else:
+                         scraper.status = Status.done.value
+                    finally:
+                         scraper.save_to_db()
+                    q.task_done()
+     Thread(target=worker, daemon=True, args=[ctx]).start()
+     q.join()
 
 class Status(enum.Enum):
     running = 'RUNNING'
     done = 'DONE'
     error = 'ERROR'
+    inqueue = 'QUEUED'
 
 app = create_app()
+Thread(target=scraping_queue, args=[app]).start()
 
 @app.route('/') 
 def index():  
@@ -48,16 +74,17 @@ def start_scraper_by_id(id):
 
      if not scraper:
           return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
-     
+     if scraper.status == Status.inqueue.value:
+          return json.dumps({'success': False, 'messsage': 'Scraper already queued to run'}), 400, {'ContentType':'application/json'}
      try:
-          Thread(target=start_scraper_cmd, args=(scraper.url,), daemon=True).start()
-          scraper.status = Status.running.value
+          q.put(id)
+          scraper.status = Status.inqueue.value
           scraper.save_to_db()
      except BaseException as err:
-          return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
+           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
      
+     return json.dumps({'success': True, 'messsage': 'Scraper added to the queue'}), 200, {'ContentType':'application/json'}
 
-     return json.dumps({'success': True, 'messsage': 'Scraper ran succesfully'}), 200, {'ContentType':'application/json'}
 
 
 
@@ -81,10 +108,11 @@ def add_scraper():
 
      try:
           scraper.save_to_db()
-          # Start the scraper
-          Thread(target=start_scraper_cmd, args=(scraper.url,), daemon=True).start()
+          # adds scraper to the queue
+          q.put(scraper.id)
      except BaseException as err:
           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
+       
      
      return json.dumps({'success': True, 'data': scraper.serialize()}), 201, {'ContentType':'application/json'}
 
@@ -134,6 +162,10 @@ def get_scraper_results(id):
      return json.dumps(products)
 
 
+@app.route('/check-queue')
+def check_queue():
+     scrapers = get_scrapers
+
 @app.route('/scrapers/<id>/export')
 @jwt_required()
 def export_scraper_to_file(id):
@@ -171,30 +203,27 @@ def export_scraper_to_file(id):
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():
-    scraper = None 
-    products = json.loads(request.json)
-
-    for product in products:
-          scraper = Scraper.query.filter_by(url=product['url']).first()
-        
+     data = json.loads(request.json)
+     scraper = Scraper.find_by_id(data['scraper_id'])
+     for product in data['products']:        
           p = Product.query.filter_by(
-               name = product['product_name'],
-               scraper = scraper).order_by(Product.date.desc()).first()
-  
+                name = product['product_name'],
+                scraper = scraper).order_by(Product.date.desc()).first()
+
           if not p or p.price_current != product['price_current'] or p.price_reference != product['price_reference']:
-              screenshot = Screenshot(name=str(product['screenshot_id']), screenshot_file=product['screenshot'])
-              screenshot.save_to_db()
-              product['screenshot'] = screenshot
-              p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
-              p.save_to_db()
+               screenshot = Screenshot(name=str(product['screenshot_id']), screenshot_file=product['screenshot'])
+               screenshot.save_to_db()
+               product['screenshot'] = screenshot
+               p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], product_url=product['product_url'],screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
+               p.save_to_db()
                    
     
-    if scraper: # Delete if statement
+     if scraper: # Delete if statement
           scraper.status = Status.done.value
           scraper.last_scanned = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
           scraper.save_to_db()
-  
-    return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
+
+     return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
 
 
 @app.route('/products', methods=["GET"])

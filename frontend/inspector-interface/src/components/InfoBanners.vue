@@ -32,7 +32,7 @@ export default {
 
 <style scoped>
 .move-down {
-  margin-top: 100px;
+  margin-top: 20px;
   margin-left: 30px;
   margin-right: 30px;
 }
