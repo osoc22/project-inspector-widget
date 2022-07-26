@@ -27,3 +27,4 @@ This section contains the major frameworks used to create our project.
 * Flask
 
 ## See articles
+Medium: [A tool to support honest online shopping](https://medium.com/@camillafrison9/a-tool-to-support-honest-online-shopping-41977cedeb61)
