@@ -69,8 +69,13 @@ class WebShop(db.Model):
         return cls.query.all()
 
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
 
     def delete_from_db(self):
         db.session.delete(self)
@@ -102,8 +107,13 @@ class Screenshot(db.Model):
         return cls.query.all()
 
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
 
     def delete_from_db(self):
         db.session.delete(self)
@@ -145,8 +155,13 @@ class Product(db.Model):
         return cls.query.filter_by(name=name)
     
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
 
     def delete_from_db(self):
         db.session.delete(self)

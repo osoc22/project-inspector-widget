@@ -18,7 +18,7 @@ migrate = Migrate() # Initializing migrate.
 # Create
 def create_app():
 #   Application factory pattern
-    app = Flask(__name__)
+    app = Flask(__name__) 
     CORS(app)
     cors = CORS(app, resource={
         r"/*":{
