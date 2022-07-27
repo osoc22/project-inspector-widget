@@ -105,7 +105,7 @@ export default {
   methods: {
     deleteScraper(id) {
       const delete_request =
-        "https://bosa-inspector-widget.herokuapp.com/scrapers/" + String(id);
+        "https://bosa-inspector-widget.herokuapp.com/scrapers/" + id.toString();
       console.log("this should delete the scraper");
       axios.delete(delete_request, {
         headers: {
