@@ -226,8 +226,14 @@ class Scraper(db.Model):
    
       
     def delete_from_db(self):
-        db.session.delete(self)
-        db.session.commit()
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.close()
+            raise
+
     
     def serialize(self):
        return {
