@@ -1,7 +1,7 @@
 # Inspector widget
 
 <div align="center">
-  <img src="https://github.com/osoc22/project-inspector-widget/blob/master/inspector.svg" width="250px" />
+  <img src="https://osoc.be/editions/2022/projects/inspector-widget.svg" width="250px" />
 </div>
 
 See master branch: https://github.com/osoc22/project-inspector-widget
