@@ -41,6 +41,8 @@ Online demo: https://inspector-widget.netlify.app/
 
 [Backend](https://github.com/osoc22/project-inspector-widget/blob/master/week1/readme.md)
 
+[Scraper](https://github.com/osoc22/project-inspector-widget/blob/master/scraper.md)
+
 [Deployment](https://github.com/osoc22/project-inspector-widget/blob/master/deployment.md)
 
 ## Built With 🏗️

@@ -73,12 +73,6 @@ class GenericScraper:
         """
         pass
 
-    async def close(self):
-        """Closes the Page
-        """
-        await self.page.close()
-
-
 class VandenborreScraper(GenericScraper):
     """A scraper made for the Vandenborre website
     """
@@ -89,7 +83,6 @@ class VandenborreScraper(GenericScraper):
         self.url = url
         par = await super().create(browser, url)
         self.page = par.page
-        self.filename = "vandenborre.csv"
         self.webshop = "x2o"
         self.price_current_field = '.current'
         self.price_reference_field = '.reference'
@@ -114,7 +107,7 @@ class VandenborreScraper(GenericScraper):
                 }));
             }""")
         await asyncio.sleep(3)
-        #await self.page.select('select[name="COUNTPERPAGE"', '0')
+        await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
         
         # this closes the weird "hey need help" thing on the website if it pops up
@@ -147,7 +140,6 @@ class X2OScraper(GenericScraper):
         self.url = url
         par = await super().create(browser, url)
         self.page = par.page
-        self.filename = "X20.csv"
         self.webshop = "x2o"
         self.price_current_field = 'span[class^="price-"]'
         self.price_reference_field = 'p[class^="PromoAdvantageEuro-oldPrice-"]'
