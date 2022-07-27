@@ -25,6 +25,25 @@ Where URL_TO_SCRAPE is the url of the "category" page of a webshop that you'd li
 
 The command will use the backend /products endpoint to post its result there.
 
+## Automating scraper launch
+As the scraper is made to work with the flask back-end, it can be launched automatically every X minutes/hours/days/week by modifiying the following code in flaskr/app.py
+```python
+@app.route('/check-queue')
+def check_queue():
+     for scraper in Scraper.find_all():
+          if scraper.status is not Status.inqueue.value and scraper.start_date < datetime.utcnow() and scraper.end_date > datetime.utcnow() and (scraper.last_scanned + timedelta(hours=20)) < datetime.utcnow():
+               scraper.status = Status.inqueue.value
+               scraper.save_to_db()
+               q.put(scraper.id)
+     return "", 200
+```
+By changing hours=20 to the interval you'd like
+
+You can also change into the flaskr/Dockerfile the following line 
+```docker
+RUN crontab -l | { cat; echo "*/5 * * * * curl http://localhost:8500/check-queue"; } | crontab -
+```
+To an interval you'd like this will check and add into the queue any scraping task that needs to be done every 5 minutes. If you want to change the interval without learning about cron, [this](https://crontab.guru/) is a great place to do so.
 ## Adding a new webshop
 To add support for a new webshop, you will first need to follow these steps:
 ### Inherit from the GenericScraper class
