@@ -69,20 +69,11 @@ If you want to say thank you or/and support active development of our applicatio
 
 Let's make a bigger impact by scraping more websites.
 
-<<<<<<< HEAD
-## Copyright ©️
-Copyright © Inspector Widget 2022
-=======
 ## License
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/osoc22/project-inspector-widget/blob/master/LICENSE)
->>>>>>> 472b9c761a08a63790b85025143dd4467b72f783
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
 [Vue-url]: https://vuejs.org
 [Flask]: https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white
-<<<<<<< HEAD
 [Flask-url]: https://flask.palletsprojects.com/en/2.1.x
-=======
-[Flask-url]: https://flask.palletsprojects.com/en/2.1.x
->>>>>>> 472b9c761a08a63790b85025143dd4467b72f783

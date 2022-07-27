@@ -221,10 +221,6 @@ def export_scraper_to_file(id):
      except BaseException as err:
           print(err)
           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
-    
-
-def compare_prices():
-     products = []
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():

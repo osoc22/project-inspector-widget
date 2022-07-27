@@ -103,8 +103,4 @@ The backend uses JWT tokens for authentication.
 * DELETE `/scrapers/{id}` - to delete a specific scraper resource
 * GET `/scrapers/{id}/results` - to get the list of all products tied to a specific scraper resource
 * GET `/scrapers/{id}/export` - to get the list of all products tied to a specific scraper resource + screenshots in a zip file
-<<<<<<< HEAD
 * GET `/products` - to get the list of all products
-=======
-* GET `/products` - to get the list of all products
->>>>>>> 472b9c761a08a63790b85025143dd4467b72f783
