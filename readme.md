@@ -67,8 +67,8 @@ If you want to say thank you or/and support active development of our applicatio
 
 Let's make a bigger impact by scraping more websites.
 
-## Copyright ©️
-Copyright © Inspector Widget 2022
+## License
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
