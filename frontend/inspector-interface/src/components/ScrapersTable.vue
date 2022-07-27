@@ -88,8 +88,9 @@ export default {
       console.log("this should download the results");
     },
     showOverview(input) {
-      this.show_overview = true
+      console.log(input)
       this.selected_scraper = input
+      this.show_overview = true
     },
     closeOverview() {
       this.show_overview = false

@@ -1,43 +1,42 @@
 <template>
   <div class="container" v-if="scraper_data">
     <div class="content">
-      <b-table :data="[this.getData[0]]" :card-layout="true">
+      <b-table :data="[selected_scraper]" :card-layout="true">
         <b-table-column
           field="id"
           label="ID"
           width="40"
           centered
-          v-slot="props"
         >
-          <p class="text-left">{{ props.row.id }}</p>
+          <p class="text-left">{{ scraper_data.id }}</p>
         </b-table-column>
 
         <b-table-column
           centered
           field="name"
           label="Scraper Name"
-          v-slot="props"
         >
-          <p class="text-left">{{ props.row.name }}</p>
+          <p class="text-left">{{ scraper_data.name }}</p>
         </b-table-column>
 
-        <b-table-column field="url" label="URL" centered v-slot="props">
-          <p class="text-center">{{ props.row.url }}</p>
+        <b-table-column field="url" label="URL" centered >
+          <p class="text-center">{{ scraper_data.url }}</p>
         </b-table-column>
 
-        <b-table-column field="status" label="Status" centered v-slot="props">
+        <b-table-column field="status" label="Status" centered >
           <span
             class="tag"
             :class="{
-              'is-success': props.row.status == 'finished',
-              'is-warning': props.row.status == 'running',
+              'is-success': scraper_data.status.toUpperCase() == 'FINISHED',
+              'is-warning': scraper_data.status.toUpperCase() == 'RUNNING',
             }"
           >
-            <p class="text-left">{{ props.row.status }}</p>
+        
+            <p class="text-left">{{ scraper_data.status }}</p>
           </span>
         </b-table-column>
 
-        <b-table-column label="Results" centered v-slot="props">
+        <b-table-column label="Results" centered>
           <div>
             <b-button
               @click="downloadResults"
@@ -45,14 +44,14 @@
               rounded
               outlined
               :type="{
-                'is-warning': props.row.status == 'running',
-                'is-success': props.row.status == 'finished',
+                'is-warning': scraper_data.status == 'running',
+                'is-success': scraper_data.status == 'finished',
               }"
             >
               results
             </b-button>
             <b-button
-              @click="() => deleteScraper(props.row.id)"
+              @click="() => deleteScraper(scraper_data.id)"
               size="is-small"
               rounded
               outlined
@@ -83,6 +82,9 @@ export default {
       default: null,
       required: true,
     },
+  },
+  mounted() {
+    console.log(this.scraper_data)
   },
 
   methods: {
