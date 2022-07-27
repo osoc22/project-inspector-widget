@@ -1,203 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="Github pages template for Open summer of code">
-    <meta name="author" content="open summer of code">
-    <link rel="icon" href="favicon.ico">
 
-    <title>Inspector widget</title>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="Github pages template for Open summer of code">
+  <meta name="author" content="open summer of code">
+  <link rel="icon" href="favicon.ico">
 
-    <!-- flexbox -->
-    <link href="css/flexboxgrid.css" rel="stylesheet">
+  <title>Inspector widget</title>
 
-    <!-- Custom styles -->
-    <link href="css/main.css" rel="stylesheet">
-    <link href="css/typography.css" rel="stylesheet">
-    <link href="css/buttons.css" rel="stylesheet">
-    <link href="css/helpers.css" rel="stylesheet">
+  <!-- flexbox -->
+  <link href="css/flexboxgrid.css" rel="stylesheet">
 
-    <link href="css/header.css" rel="stylesheet">
-    <link href="css/project.css" rel="stylesheet">
-    <link href="css/footer.css" rel="stylesheet">
+  <!-- Custom styles -->
+  <link href="css/main.css" rel="stylesheet">
+  <link href="css/typography.css" rel="stylesheet">
+  <link href="css/buttons.css" rel="stylesheet">
+  <link href="css/helpers.css" rel="stylesheet">
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400" rel="stylesheet">
+  <link href="css/header.css" rel="stylesheet">
+  <link href="css/project.css" rel="stylesheet">
+  <link href="css/footer.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400"
+    rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <meta name="keywords" content="oSoc18, open, summer, code, Belgium, github, pages, template">
-    <meta name="author" content="oSoc18 team, Open Knowledge Belgium">
-    <meta name="viewport" content="width=device-width">
-    <meta property="og:title" content="open summer of code 2018" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://osoc22.github.io/project-inspector-widget" />
-    <meta property="og:image" content="http://osoc.miet.be/img/socialmedia/socialmedia.png?4362984378" />
-    <meta property="og:description" content="Github pages template for Open summer of code" />
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@osocode">
-    <meta name="twitter:title" content="open summer of code 2018">
-    <meta name="twitter:description" content="Github pages template for Open summer of code">
-    <meta name="twitter:image" content="http://osoc.miet.be/img/socialmedia/socialmedia.png?4362984378" />
-    <!-- FAVICONS -->
-    <link rel="apple-touch-icon" sizes="32x32" href="apple-touch-icon-32x32-precomposed.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="apple-touch-icon-57x57-precomposed.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="apple-touch-icon-60x60-precomposed.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="apple-touch-icon-72x72-precomposed.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76-precomposed.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120-precomposed.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152-precomposed.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180-precomposed.png">
-    <link rel="apple-touch-icon" sizes="194x194" href="apple-touch-icon-194x194-precomposed.png">
+  <meta name="keywords" content="oSoc18, open, summer, code, Belgium, github, pages, template">
+  <meta name="author" content="oSoc18 team, Open Knowledge Belgium">
+  <meta name="viewport" content="width=device-width">
+  <meta property="og:title" content="open summer of code 2018" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://osoc22.github.io/project-inspector-widget" />
+  <meta property="og:image" content="http://osoc.miet.be/img/socialmedia/socialmedia.png?4362984378" />
+  <meta property="og:description" content="Github pages template for Open summer of code" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@osocode">
+  <meta name="twitter:title" content="open summer of code 2018">
+  <meta name="twitter:description" content="Github pages template for Open summer of code">
+  <meta name="twitter:image" content="http://osoc.miet.be/img/socialmedia/socialmedia.png?4362984378" />
+  <!-- FAVICONS -->
+  <link rel="apple-touch-icon" sizes="32x32" href="apple-touch-icon-32x32-precomposed.png">
+  <link rel="apple-touch-icon" sizes="57x57" href="apple-touch-icon-57x57-precomposed.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="apple-touch-icon-60x60-precomposed.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="apple-touch-icon-72x72-precomposed.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76-precomposed.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120-precomposed.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152-precomposed.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180-precomposed.png">
+  <link rel="apple-touch-icon" sizes="194x194" href="apple-touch-icon-194x194-precomposed.png">
 
-    <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="favicon-194x194.png" sizes="194x194">
-    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="android-chrome-48x48.png" sizes="48x48">
-    <link rel="icon" type="image/png" href="android-chrome-72x72.png" sizes="72x72">
-    <link rel="icon" type="image/png" href="android-chrome-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="android-chrome-144x144.png" sizes="144x144">
-    <link rel="icon" type="image/png" href="android-chrome-192x192.png" sizes="192x192">
-    <link rel="manifest" href="manifest.json">
-    <meta name="msapplication-TileColor" content="‪#FFFFFF">
-    <meta name="msapplication-TileImage" content="mstile-144x144.png">
-    <meta name="theme-color" content="‪#FFFFFF">
+  <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="favicon-194x194.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
+  <link rel="icon" type="image/png" href="android-chrome-48x48.png" sizes="48x48">
+  <link rel="icon" type="image/png" href="android-chrome-72x72.png" sizes="72x72">
+  <link rel="icon" type="image/png" href="android-chrome-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="android-chrome-144x144.png" sizes="144x144">
+  <link rel="icon" type="image/png" href="android-chrome-192x192.png" sizes="192x192">
+  <link rel="manifest" href="manifest.json">
+  <meta name="msapplication-TileColor" content="‪#FFFFFF">
+  <meta name="msapplication-TileImage" content="mstile-144x144.png">
+  <meta name="theme-color" content="‪#FFFFFF">
 
-  </head>
+</head>
 
-  <body>
-    <div class="layout">
-      <div class="hero">
-        <div class="container container-fluid">
-          <div class="row around-xs">
-            <div class="col-xs-12 col-sm-11 col-md-10 col-lg-9">
-              <div class="row hero-card">
-                <div class="col-xs-12 col-sm-10 col-md-7 col-lg-8">
-                  <h1 class="h1 hero-title">Inspector widget</h1>
-                  <!-- replace the title content with your project name -->
-                </div>
-                <div class="col-xs-12 col-sm-8 col-md-7 col-lg-7">
-                  <p class="hero-intro">We make sure that fraud during sales periods won't happen anymore!</p>
-                </div>
-                <div class="col-xs-12 col-sm-10 col-md-7 col-lg-8">
-                  <div class="button-group">
-                    <a class="button button--narrow" href="http://osoc.be" target="_blank">View project</a>
-                    <a class="button button--narrow button--alt" href="https://github.com/osoc22/project-inspector-widget" target="_blank">Contribute</a>
-                  </div>
+<body>
+  <div class="layout">
+    <div class="hero">
+      <div class="container container-fluid">
+        <div class="row around-xs">
+          <div class="col-xs-12 col-sm-11 col-md-10 col-lg-9">
+            <div class="row hero-card">
+              <div class="col-xs-12 col-sm-10 col-md-7 col-lg-8">
+                <h1 class="h1 hero-title">Inspector widget</h1>
+                <!-- replace the title content with your project name -->
+              </div>
+              <div class="col-xs-12 col-sm-8 col-md-7 col-lg-7">
+                <p class="hero-intro">We make sure that fraud during sales periods won't happen anymore!</p>
+              </div>
+              <div class="col-xs-12 col-sm-10 col-md-7 col-lg-8">
+                <div class="button-group">
+                  <a class="button button--narrow" href="https://inspector-widget.netlify.app" target="_blank">View
+                    project</a>
+                  <a class="button button--narrow button--alt" href="https://github.com/osoc22/project-inspector-widget"
+                    target="_blank">Contribute</a>
                 </div>
               </div>
             </div>
           </div>
-        </div> <!-- container -->
-      </div> <!-- hero -->
+        </div>
+      </div> <!-- container -->
+    </div> <!-- hero -->
 
-      <div class="container container-fluid project-section">
-        <div class="row">
-          <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-5 col-md-offset-0 col-lg-6">
-            <div class="project-image">
-              <img src="img/osoc-screen.png">
-            </div>
-          </div>
-          <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-lg-5 col-md-offset-1">
-            <h2 class="h4">The project</h2>
-            <p>Our application allows the economic inspectors at FOD economie to automatically check multiple websites at the same time and create automatic screenshots of the products that need to be checked. The application is able to create automatic reports which compare product prices during the period.</p>
+    <div class="container container-fluid project-section">
+      <div class="row">
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-5 col-md-offset-0 col-lg-6">
+          <div class="project-image">
+            <img src="img/screencapture-inspector-widget-netlify-app-2022-07-27-12_40_48.png">
           </div>
         </div>
-        <div class="row">
-          <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-0 col-lg-5">
-            <p>Want to know how this grid works, what the headers look like and what kind of buttons we have? Go to the <a href="styleguide.html">styleguide</a>. Before you ship, don't forget to remove "styleguide-remove-me.css", and replace all the favicons.</p>
-            <div class="button-group">
-              <a class="button button--narrow" href="http://osoc.be" target="_blank">View project</a>
-              <a class="button button--narrow button--alt" href="https://github.com/osoc22/project-inspector-widget" target="_blank">Contribute</a>
-            </div>
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-lg-5 col-md-offset-1">
+          <h2 class="h4">The project</h2>
+          <p>Our application allows the economic inspectors at FOD economie to automatically check multiple websites at
+            the same time and create automatic screenshots of the products that need to be checked. The application is
+            able to create automatic reports which compare product prices during the period.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-0 col-lg-5">
+          <h2 class="h4">The feautures</h2>
+          <p>
+            When a user first visits the website, it is greeted with a log-in and sign-up page (See page above). Here
+            the user can either register for a new account or login to their current account.
+            After authentication, the user is given a quick overview of all its already created scrapers and their
+            status.
+          </p>
+          <p>
+            On the same overview page, the user can add a new scraper to the list, which will extract the product data
+            from the web page using the url entered by the user.
+          </p>
+          <div class="button-group">
+            <a class="button button--narrow" href="https://inspector-widget.netlify.app" target="_blank">View
+              project</a>
+            <a class="button button--narrow button--alt" href="https://github.com/osoc22/project-inspector-widget"
+              target="_blank">Contribute</a>
           </div>
-          <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-5 col-lg-6 col-md-offset-1">
-            <div class="project-image">
-              <img src="img/osoc-screen.png">
-            </div>
+        </div>
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-5 col-lg-6 col-md-offset-1">
+          <div class="project-image">
+            <img src="img/screencapture-inspector-widget-netlify-app-2022-07-27-12_50_42.png">
           </div>
         </div>
       </div>
-
-      <div class="container container-fluid project-section">
-        <hr>
-
-        <div class="row">
-          <div class="col-xs-12 col-sm-5 col-md-6 col-lg-5">
-            <h3 class="h5">The team</h3>
-            <ul class="team">
-              <li>
-                <h4 class="h6"><a href="http://linkedin.com" target="_blank">Arthur Coenen</a></h4>
-                <p>Front-end developer</p>
-              </li>
-              <li>
-                <h4 class="h6"><a href="https://www.linkedin.com/in/camilla-frison-a80381192" target="_blank">Camilla Frison</a></h4>
-                <p>Communication manager</p>
-              </li>
-              <li>
-                <h4 class="h6"><a href="https://www.linkedin.com/in/victor-vansteenkiste-07b7791b9" target="_blank">Victor Vansteenkiste</a></h4>
-                <p>Front-end and Back-end developer</p>
-              </li>
-              <li>
-                <h4 class="h6"><a href="https://www.linkedin.com/in/tischa-nyanguile/" target="_blank">Tischa Nyanguile</a></h4>
-                <p>Back-end developer</p>
-              </li>
-            </ul>
-          </div>
-          <div class="col-xs-12 col-sm-6 col-sm-offset-1 col-md-5 col-lg-5 col-lg-offset-2">
-            <h3 class="h5">Our coaches</h3>
-            <ul class="partners">
-              <li class="row middle-xs">
-                <div class="col-xs-3">
-                  <a href="http://osoc.be" target="_blank"><img src="img/osoc-emblem.svg"></a>
-                </div>
-                <div class="col-xs-9 col-md-8 col-lg-8 col-md-offset-1">
-                  <h4 class="h6"><a href="http://osoc.be" target="_blank">Christophe Leroy</a></h4>
-                </div>
-              </li>
-              <li class="row middle-xs">
-                <div class="col-xs-3">
-                  <a href="http://osoc.be" target="_blank"><img src="img/osoc-emblem.svg"></a>
-                </div>
-                <div class="col-xs-9 col-md-8 col-lg-8 col-md-offset-1">
-                  <h4 class="h6"><a href="http://osoc.be" target="_blank">Miel Van Opstal</a></h4>
-                </div>
-              </li>
-              <li class="row middle-xs">
-                <div class="col-xs-3">
-                  <a href="http://osoc.be" target="_blank"><img src="img/osoc-emblem.svg"></a>
-                </div>
-                <div class="col-xs-9 col-md-8 col-lg-8 col-md-offset-1">
-                  <h4 class="h6"><a href="http://osoc.be" target="_blank">Bavo Lodewyckx</a></h4>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <footer>
-        <div class="container container-fluid">
-          <div class="row middle-xs">
-            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
-              <img src="img/osoc-logo.svg">
-            </div>
-            <div class="col-xs-6 col-sm-8 col-md-9 col-lg-10">
-              <p>Made with love at <a href="http://osoc.be" target="_blank">osoc&nbsp;2022</a></p>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
-  </body>
+
+    <div class="container container-fluid project-section">
+      <hr>
+
+      <div class="row">
+        <div class="col-xs-12 col-sm-5 col-md-6 col-lg-5">
+          <h3 class="h5">The team</h3>
+          <ul class="team">
+            <li class="middle-xs row">
+              <div class="col-xs-3"> <a href="https://github.com/arthurco" target="_blank"><img class="round"
+                    style="border-radius: 50%"
+                    src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Farthur-coenen.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-lg-8 col-md-8 col-md-offset-1 col-xs-9">
+                <h4 class="h6"> <a href="" target="_blank">Arthur Coenen</a> </h4>
+                <p>Front-end developer</p>
+              </div>
+            </li>
+            <li class="middle-xs row">
+              <div class="col-xs-3"> <a href="" target="_blank"><img class="round"
+                    style="border-radius: 50%"
+                    src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Fcamilla-frison.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-lg-8 col-md-8 col-md-offset-1 col-xs-9">
+                <h4 class="h6"> <a href="https://www.linkedin.com/in/camilla-frison-a80381192" target="_blank">Camilla
+                  Frison</a> </h4>
+                <p>Communication manager</p>
+              </div>
+            </li>
+            <li class="middle-xs row">
+              <div class="col-xs-3"> <a href="" target="_blank"><img class="round"
+                    style="border-radius: 50%"
+                    src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Fvictor-vansteenkiste.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-lg-8 col-md-8 col-md-offset-1 col-xs-9">
+                <h4 class="h6"> <a href="https://www.linkedin.com/in/victor-vansteenkiste-07b7791b9" target="_blank">Victor
+                  Vansteenkiste</a> </h4>
+                <p>Front-end and Back-end developer</p>
+              </div>
+            </li>
+            <li class="middle-xs row">
+              <div class="col-xs-3"> <a href="https://github.com/0xtini" target="_blank"><img class="round"
+                    style="border-radius: 50%"
+                    src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Ftischa-nyanguile.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-lg-8 col-md-8 col-md-offset-1 col-xs-9">
+                <h4 class="h6"> <a href="https://www.linkedin.com/in/tischa-nyanguile" target="_blank">Tischa
+                  Nyanguile</a> </h4>
+                <p>Back-end developer</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-sm-offset-1 col-md-5 col-lg-5 col-lg-offset-2">
+          <h3 class="h5">Our coaches</h3>
+          <ul class="coaches">
+            <li class="row middle-xs">
+              <div class="col-xs-3">
+                <a href="" target="_blank"><img class="round"
+                  style="border-radius: 50%"
+                  src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Fchristophe-leroy.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-xs-9 col-md-8 col-lg-8 col-md-offset-1">
+                <h4 class="h6"><a href="http://osoc.be" target="_blank">Christophe Leroy</a></h4>
+              </div>
+            </li>
+            <li class="row middle-xs">
+              <div class="col-xs-3">
+                <a href="" target="_blank"><img class="round"
+                  style="border-radius: 50%"
+                  src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Fmiel-van-opstal.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-xs-9 col-md-8 col-lg-8 col-md-offset-1">
+                <h4 class="h6"><a href="http://osoc.be" target="_blank">Miel Van Opstal</a></h4>
+              </div>
+            </li>
+            <li class="row middle-xs">
+              <div class="col-xs-3">
+                <a href="" target="_blank"><img class="round"
+                  style="border-radius: 50%"
+                  src="https://osoc.be/_next/image?url=%2Feditions%2F2022%2Fparticipants%2Fbavo-lodewyckx.jpg&w=640&q=75"></a>
+              </div>
+              <div class="col-xs-9 col-md-8 col-lg-8 col-md-offset-1">
+                <h4 class="h6"><a href="http://osoc.be" target="_blank">Bavo Lodewyckx</a></h4>
+              </div>
+            </li>
+          </ul>
+        </div>
+      <div class="row">
+        <div class="">
+          <h3 class="h5">Our partners</h3>
+          <ul class="partners">
+            <li class="row middle-xs">
+              <div class="col-xs-3">
+                <a href="" target="_blank"><img
+                  src="img\io.svg"></a>
+              </div>
+              <div class="col-s-3">
+                <a href="" target="_blank"><img
+                  src="img\bosa.svg"></a>
+              </div>
+              <div class="col-s-3">
+                <a href="" target="_blank"><img
+                  src="img\fod.jpg"></a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container container-fluid">
+        <div class="row middle-xs">
+          <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+            <img src="img/osoc-logo.svg">
+          </div>
+          <div class="col-xs-6 col-sm-8 col-md-9 col-lg-10">
+            <p>Made with love at <a href="http://osoc.be" target="_blank">osoc&nbsp;2022</a></p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+
 </html>
