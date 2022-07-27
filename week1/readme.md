@@ -1,7 +1,7 @@
 # Backend
 
 ## How to run the project 🏇
-### To run locally
+### To run locally ⚡️
 
 * Enter directory
 
@@ -26,7 +26,7 @@
 * Head over to `http://localhost:8500`
 
 
-### To run services as a docker container
+### To run services as a docker container 🐳
 
 * Enter directory
 
@@ -42,7 +42,7 @@
 
 * Head over to `http://localhost:8500`
 
-### To run **a particular service** as a docker container
+### To run **a particular service** as a docker container 🐳
 
 * To run flask application
 
@@ -54,7 +54,7 @@
 
 ## Data Models 📈
 
-There are mainly four models 
+There are mainly five models 
 
 * **User** - which contains details about the users
 * **Webshop** - which contains details about the webshops
