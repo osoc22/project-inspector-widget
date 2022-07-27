@@ -4,17 +4,20 @@
   <img src="https://osoc.be/editions/2022/projects/inspector-widget.svg" width="250px" />
 </div>
 
-This repo contains the website and some documentaion for the Inspector Widget project.
-If you want to find out more about the project, take a look at the [GitHub pages](https://osoc22.github.io/project-inspector-widget) website.
+This repository provides the code and documentation for the Inspector Widget project's web application.
+For more information we would like to refer to our [GitHub pages](https://osoc22.github.io/project-inspector-widget) website.
 
-## What is Inspector Widget? 👀 
-Explain.
+## About Inspector Widget 👀 
+
+As the Inspector Widget Team at [Osoc](https://osoc.be/), we created a web interface with a backend system that helps FOD Economie inspectors in automatically scanning numerous
+online webshops for price changes during sales.
+
 
 ## Inspector Widget: Meet the team 👨‍👩‍👦‍👦
 
 Code: Victor Vansteenkiste, Arthur Coenen and Tischa Nyanguile
 
-Communication: Camilla Frison
+Communication and Research: Camilla Frison
 
 Coaches: Chris Leroy, Bavo Lodewyckx, Miel Van Opstal
 
@@ -44,7 +47,7 @@ Online demo: https://inspector-widget.netlify.app/
 
 This section contains the major frameworks used to create our project.
 
-* VueJs
+* [![Vue][Vue.js]][Vue-url]
 * Flask
 
 ## See articles 📝
@@ -59,6 +62,9 @@ If you want to say thank you or/and support active development of our applicatio
 
 * Add a GitHub Star to the project
 * Write interesting articles about the project on Medium
+* Fork the repository (`git clone https://github.com/osoc22/project-inspector-widget.git`)
+
+Let's make a bigger impact by scraping more websites.
 
 ## Copyright ©️
 Copyright © Inspector Widget 2022

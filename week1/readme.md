@@ -52,6 +52,10 @@
 
     ```docker-compose up -d postgres  ```
 
+
+## Environment Variables ⚙️
+Explain.
+
 ## Data Models 📈
 
 There are mainly five models 
