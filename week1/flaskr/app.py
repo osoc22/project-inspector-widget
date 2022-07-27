@@ -181,7 +181,7 @@ def export_scraper_to_file(id):
      if not scraper:
           return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
      
-     products = scraper.products
+     products = scraper.products # todo: Sort by product name
 
      file_object = BytesIO()
 
