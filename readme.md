@@ -68,7 +68,7 @@ If you want to say thank you or/and support active development of our applicatio
 Let's make a bigger impact by scraping more websites.
 
 ## License
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]([https://opensource.org/licenses/MIT](https://github.com/osoc22/project-inspector-widget/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/osoc22/project-inspector-widget/blob/master/LICENSE)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
