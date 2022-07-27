@@ -40,7 +40,7 @@
         <b-table-column label="Results" centered v-slot="props">
           <div>
           <b-button
-            @click="downloadResults"
+            @click="downloadResults(props.row.id)"
             size="is-small"
             rounded
             outlined
@@ -63,7 +63,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-import axios from 'axios'
+import axios from 'axios';
+import { saveAs } from 'file-saver';
 export default {
   name: "OverviewOverlay",
 
@@ -83,15 +84,19 @@ export default {
       })
     },
     downloadResults(id) {
-      const download_request = 'https://bosa-inspector-widget.herokuapp.com/scrapers/' + String(id) +'/export'
-      console.log("this should download the results")
+      const download_request = 'https://bosa-inspector-widget.herokuapp.com/scrapers/' + id.toString() +'/export'
+      console.log("this should download the results");
+    
       axios
       .get(download_request, {
         headers: {
             Authorization: `Bearer ${this.getAccessToken}`,
-          },
+        },
+        responseType: "blob"
       })
-      .then(console.log("file was downloaded"))
+      .then((res) => {
+        saveAs(res.data, res.headers['x-filename']); //file-saver npm package
+      })
 
     }
   }
