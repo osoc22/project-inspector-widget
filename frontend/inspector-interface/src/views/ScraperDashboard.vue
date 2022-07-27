@@ -1,37 +1,37 @@
 <template>
     <div class="scraper-dashboard">
-            <b-field label="Insert Scraper Name" class="wider">
-                <b-input class="input_field" v-model="name" />
-            </b-field>
-            <b-field label="Insert Link" class="wider" >
-                <b-input class="input_field" v-model="url" />
-            </b-field>
-            <div class="aboveSpacing">
-                <div>
-                    <b-field label="Select a period">
-                        <b-datepicker
-                            v-model="start_date"
-                            placeholder="Select start date"
-                            class="halfWidth input_field"
-                        />
-                        <b-datepicker
-                            v-model="end_date"
-                            placeholder="Select end date"
-                            class="halfWidth input_field"
-                        />
-                    </b-field>
-                </div>
+        <b-field label="Insert Scraper Name" class="wider">
+            <b-input class="input_field" v-model="name" />
+        </b-field>
+        <b-field label="Insert Link" class="wider">
+            <b-input class="input_field" v-model="url" />
+        </b-field>
+        <div class="aboveSpacing">
+            <div>
+                <b-field label="Select a period">
+                    <b-datepicker
+                        v-model="start_date"
+                        placeholder="Select start date"
+                        class="halfWidth input_field"
+                    />
+                    <b-datepicker
+                        v-model="end_date"
+                        placeholder="Select end date"
+                        class="halfWidth input_field"
+                    />
+                </b-field>
             </div>
-            <div class="aboveSpacing">
-                <b-button
-                    class="btn test"
-                    :rounded="true"
-                    size="is-medium"
-                    @click="startScraper"
-                >
-                    START SCAN
-                </b-button>
-            </div>
+        </div>
+        <div class="aboveSpacing">
+            <b-button
+                class="btn test"
+                :rounded="true"
+                size="is-medium"
+                @click="startScraper"
+            >
+                START SCAN
+            </b-button>
+        </div>
         <div class="container">
             <scrapers-table />
         </div>
@@ -173,6 +173,4 @@ export default {
         border-color: #2782c6;
     }
 }
-
-
 </style>
