@@ -49,3 +49,4 @@ dist
 node_modules
 *.map
 vendor
+week1/
