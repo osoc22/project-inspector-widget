@@ -53,6 +53,7 @@
       trap-focus
       :destroy-on-hide="false"
       :on-cancel="closeOverview"
+      
     >
       <overview-overlay :scraper_data="selected_scraper" />
     </b-modal>
@@ -88,8 +89,9 @@ export default {
       console.log("this should download the results");
     },
     showOverview(input) {
-      this.show_overview = true
+      console.log(input)
       this.selected_scraper = input
+      this.show_overview = true
     },
     closeOverview() {
       this.show_overview = false
@@ -127,4 +129,7 @@ export default {
   cursor: pointer;
   outline: inherit;
 }
+
+
+
 </style>
