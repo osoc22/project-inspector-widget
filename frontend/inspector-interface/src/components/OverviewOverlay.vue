@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import axios from "axios";
 import { saveAs } from "file-saver";
 export default {
@@ -100,9 +100,15 @@ export default {
       default: null,
       required: true,
     },
+    closeOverview: {
+      type: Function,
+      default: () => {},
+      required: true
+    }
   },
 
   methods: {
+    ...mapMutations(["SET_DATA"]),
     deleteScraper(id) {
       const delete_request =
         "https://bosa-inspector-widget.herokuapp.com/scrapers/" + id.toString();
@@ -111,7 +117,18 @@ export default {
         headers: {
           Authorization: `Bearer ${this.getAccessToken}`,
         },
-      });
+      })
+      axios
+        .get("https://bosa-inspector-widget.herokuapp.com/scrapers/user", {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken}`,
+          },
+        })
+        .then((result) => {
+          this.SET_DATA(result.data)
+          this.closeOverview()
+          });
+      
     },
     downloadResults(id) {
       const download_request =

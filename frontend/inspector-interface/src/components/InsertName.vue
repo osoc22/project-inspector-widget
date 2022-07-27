@@ -1,6 +1,6 @@
 <template>
   <b-field label="Insert Scraper Name">
-    <b-input @blur="saveName" />
+    <b-input @input="saveName" />
   </b-field>
 </template>
 
