@@ -3,4 +3,3 @@
 __pycache__/
 output/
 .env.prod
-/web/zip/*
