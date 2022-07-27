@@ -185,8 +185,15 @@ def export_scraper_to_file(id):
 
      file_object = BytesIO()
 
+     filename = None
 
-     filename = '%s_%s' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
+     if not products:
+          return json.dumps({'success': False, 'messsage': 'Could not find products related to the scraper.'}), 400, {'ContentType':'application/json'}
+
+     if scraper.last_scanned:
+          filename = '%s_%s' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
+     else:
+          filename = scraper.name.replace(' ', '_')
 
      with zipfile.ZipFile(f"web/zip/{filename}.zip", 'w') as zip_file:
           csv_output = StringIO()
@@ -215,6 +222,9 @@ def export_scraper_to_file(id):
           print(err)
           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
     
+
+def compare_prices():
+     products = []
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():
