@@ -1,15 +1,18 @@
-# Inspector Widget
+# **Inspector Widget**
 
 <div align="center">
   <img src="https://osoc.be/editions/2022/projects/inspector-widget.svg" width="250px" />
 </div>
 
-## 👀 What is Inspector Widget?
+## What is Inspector Widget? 👀 
 
 Explain.
 
 ## Inspector Widget: Meet the team 👨‍👩‍👦‍👦
 
+Explain.
+
+## Branches 🌲
 
 See master branch: https://github.com/osoc22/project-inspector-widget
 
@@ -47,20 +50,11 @@ Medium: [A tool to support honest online shopping](https://medium.com/@camillafr
 You can reach out to us via Github disscussions.
 
 
-
 ## Contribute ❤️
 If you want to say thank you or/and support active development of our application:
 
 * Add a GitHub Star to the project
 * Write interesting articles about project on Medium
-
-
-Contributing
-Fork it (https://github.com/sr6033/lterm/fork)
-Create your feature branch (git checkout -b feature/fooBar)
-Commit your changes (git commit -am 'Add some fooBar')
-Push to the branch (git push origin feature/fooBar)
-Create a new Pull Request
 
 ## Copyright ©️
 Copyright © Inspector Widget 2022

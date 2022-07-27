@@ -3,10 +3,11 @@ import base64
 import json
 import logging
 import socket
+import os
 import time
 from io import BytesIO
 from PIL import Image
-import pyppeteer
+from pyppeteer import launch
 import click
 from price_parser import Price
 import requests
@@ -237,28 +238,27 @@ async def main(url, scraper_id):
         url (str): the url of the webshop to scrape.
     """
     # hopefully this gets the chrome service's IP, because chrome debug doesn't allow access via hostname
-    try:
-        CHROME_IP = socket.getaddrinfo('chrome',0)[0][4][0]
-    except socket.gaierror:
-        CHROME_IP = '127.0.0.1'
-    browser = await pyppeteer.connect(browserURL=f'http://{CHROME_IP}:9222')
-    for old_context in browser.browserContexts:
-        if old_context.isIncognito():
-            await old_context.close()
-    context = await browser.createIncognitoBrowserContext()
+    browser = await launch({
+        'autoClose': False,
+        'executablePath': '/usr/bin/google-chrome-stable',
+        'args': ["--no-sandbox"],
+    })
+
     scraper = None
     if ('vandenborre.be' in url):
-        scraper = await VandenborreScraper.create(context, url)
+        scraper = await VandenborreScraper.create(browser, url)
     elif ('x2o.be' in url):
-        scraper = await X2OScraper.create(context, url)
+        scraper = await X2OScraper.create(browser, url)
     else:
         print('webshop not supported')
-        await context.close()
+        await browser.close()
         exit(1)
+
     ret = await scraper.scrape()
-    res = requests.post("http://localhost:8500/products", json=json.dumps({"scraper_id" : scraper_id, "products" : ret}))
-    await context.close()
+    res = requests.post(os.environ["APP_URL"] + "/products", json=json.dumps({"scraper_id" : scraper_id, "products" : ret}))
+    await browser.close()
     await browser.disconnect()
+    return ret
 
 @click.command()
 @click.argument('url')
