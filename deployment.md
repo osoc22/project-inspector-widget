@@ -66,14 +66,16 @@ using your favorite editor, modify the .env file and replace the following field
 - POSTGRES_PORT=5432
 - POSTGRES_DB=name of your database
 - DATABASE_URL=postgresql://database_user:database_passowrd@postgres/database_name
-- SECRET_KEY:
+- SECRET_KEY=
     
     1 Generate a random string:
     ```
+    python
     import uuid
     uuid.uuid4().hex
+    exit()
     ```
-    2 Set SECRET_KEY in .env file to the generated random string:
+    2 Set SECRET_KEY in .env file to the generated random string (the one between the quotes)
     SECRET_KEY = 'this is the random string'
 
 
