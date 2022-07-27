@@ -166,7 +166,12 @@ def get_scraper_results(id):
 
 @app.route('/check-queue')
 def check_queue():
-     scrapers = get_scrapers
+     for scraper in Scraper.find_all():
+          if scraper.status is not Status.inqueue.value and scraper.start_date < datetime.utcnow() and scraper.end_date > datetime.utcnow() and (scraper.last_scanned + timedelta(minutes=5)) < datetime.utcnow():
+               scraper.status = Status.inqueue.value
+               scraper.save_to_db()
+               q.put(scraper.id)
+     return "", 200
 
 @app.route('/scrapers/<id>/export')
 @jwt_required()
@@ -224,13 +229,13 @@ def add_products():
                screenshot = Screenshot(name=str(product['screenshot_id']), screenshot_file=product['screenshot'])
                screenshot.save_to_db()
                product['screenshot'] = screenshot
-               p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], product_url=product['product_url'],screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
+               p = Product(name=product['product_name'], price_current=product['price_current'], price_reference=product['price_reference'], product_url=product['product_url'],screenshot=product['screenshot'], webshop=scraper.webshop, date=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"), scraper=scraper)
                p.save_to_db()
                    
     
      if scraper: # Delete if statement
           scraper.status = Status.done.value
-          scraper.last_scanned = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+          scraper.last_scanned = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
           scraper.save_to_db()
 
      return json.dumps({'success': True}), 201, {'ContentType':'application/json'}
