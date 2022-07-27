@@ -73,12 +73,6 @@ class GenericScraper:
         """
         pass
 
-    async def close(self):
-        """Closes the Page
-        """
-        await self.page.close()
-
-
 class VandenborreScraper(GenericScraper):
     """A scraper made for the Vandenborre website
     """
@@ -89,7 +83,6 @@ class VandenborreScraper(GenericScraper):
         self.url = url
         par = await super().create(browser, url)
         self.page = par.page
-        self.filename = "vandenborre.csv"
         self.webshop = "x2o"
         self.price_current_field = '.current'
         self.price_reference_field = '.reference'
@@ -147,7 +140,6 @@ class X2OScraper(GenericScraper):
         self.url = url
         par = await super().create(browser, url)
         self.page = par.page
-        self.filename = "X20.csv"
         self.webshop = "x2o"
         self.price_current_field = 'span[class^="price-"]'
         self.price_reference_field = 'p[class^="PromoAdvantageEuro-oldPrice-"]'
