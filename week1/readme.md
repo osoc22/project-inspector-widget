@@ -80,8 +80,8 @@ The backend uses JWT tokens for authentication.
             "https://localhost:8500/scrapers",
             {
                 headers: {
-                Authorization: `Bearer ${access_token}`,
-                },
+                    Authorization: `Bearer ${access_token}`,
+                }
             }
         );
     ```
@@ -96,6 +96,7 @@ The backend uses JWT tokens for authentication.
 
 ❗ These paths require authentication before use
 * GET `/start-scraper/{id}` - to start a specific scraper resource
+* GET `/check-queue` - checks status of the scraper and adds it to the queue if the period is active
 * POST `/scrapers` - to add a new scraper resource
 * GET `/scrapers` - to get the list of all scraper resources
 * GET `/scrapers/{id}` - to get a specific scraper resource
