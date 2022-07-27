@@ -107,7 +107,7 @@ class VandenborreScraper(GenericScraper):
                 }));
             }""")
         await asyncio.sleep(3)
-        #await self.page.select('select[name="COUNTPERPAGE"', '0')
+        await self.page.select('select[name="COUNTPERPAGE"', '0')
         await self.page.waitForSelector('div.js-product-list')
         
         # this closes the weird "hey need help" thing on the website if it pops up
