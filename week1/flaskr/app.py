@@ -181,12 +181,19 @@ def export_scraper_to_file(id):
      if not scraper:
           return json.dumps({'success': False, 'messsage': 'Could not find scraper'}), 400, {'ContentType':'application/json'}
      
-     products = scraper.products
+     products = scraper.products # todo: Sort by product name
 
      file_object = BytesIO()
 
+     filename = None
 
-     filename = '%s_%s' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
+     if not products:
+          return json.dumps({'success': False, 'messsage': 'Could not find products related to the scraper.'}), 400, {'ContentType':'application/json'}
+
+     if scraper.last_scanned:
+          filename = '%s_%s' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
+     else:
+          filename = scraper.name.replace(' ', '_')
 
      with zipfile.ZipFile(f"web/zip/{filename}.zip", 'w') as zip_file:
           csv_output = StringIO()
@@ -214,7 +221,6 @@ def export_scraper_to_file(id):
      except BaseException as err:
           print(err)
           return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
-    
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():
