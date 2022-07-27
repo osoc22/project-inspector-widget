@@ -1,4 +1,5 @@
 # Backend
+❗ Make sure that Python, Bash and Docker Desktop is installed on your system before continuing.
 
 ## How to run the project 🏇
 ### To run locally
