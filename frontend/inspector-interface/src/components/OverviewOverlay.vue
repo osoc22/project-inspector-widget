@@ -1,39 +1,55 @@
 <template>
-  <div class="container" v-if="scraper_data">
+  <div class="container">
+    <p class="panel-heading specific_color">Scraper Info</p>
     <div class="content">
-      <b-table :data="[selected_scraper]" :card-layout="true">
-        <b-table-column
-          field="id"
-          label="ID"
-          width="40"
-          centered
-        >
+      <b-table :data="[selected_scraper]" :card-layout="true" class="bigger">
+        <b-table-column field="id" label="ID" width="40" centered>
           <p class="text-left">{{ scraper_data.id }}</p>
         </b-table-column>
 
-        <b-table-column
-          centered
-          field="name"
-          label="Scraper Name"
-        >
+        <b-table-column centered field="name" label="Scraper Name">
           <p class="text-left">{{ scraper_data.name }}</p>
         </b-table-column>
 
-        <b-table-column field="url" label="URL" centered >
+        <b-table-column field="url" label="URL" centered>
           <p class="text-center">{{ scraper_data.url }}</p>
         </b-table-column>
 
-        <b-table-column field="status" label="Status" centered >
+        <b-table-column field="status" label="Status" centered>
           <span
             class="tag"
             :class="{
-              'is-success': scraper_data.status.toUpperCase() == 'FINISHED',
+              'is-success': scraper_data.status.toUpperCase() == 'DONE',
               'is-warning': scraper_data.status.toUpperCase() == 'RUNNING',
+              'is-danger': scraper_data.status.toUpperCase() == 'ERROR',
             }"
           >
-        
             <p class="text-left">{{ scraper_data.status }}</p>
           </span>
+        </b-table-column>
+
+        <b-table-column field="start_date" label="Start Date" centered>
+          <p class="text-center">{{ scraper_data.start_date }}</p>
+        </b-table-column>
+
+        <b-table-column field="end_date" label="End Date" centered>
+          <p class="text-center">{{ scraper_data.end_date }}</p>
+        </b-table-column>
+
+        <b-table-column field="last_scanned" label="Last Scanned" centered>
+          <p class="text-center">{{ scraper_data.last_scanned }}</p>
+        </b-table-column>
+
+        <b-table-column field="last_scanned" label="Last Scanned" centered>
+          <p class="text-center">{{ scraper_data.last_scanned }}</p>
+        </b-table-column>
+
+        <b-table-column field="webshop" label="Webshop" centered>
+          <p class="text-center">{{ scraper_data.webshop }}</p>
+        </b-table-column>
+
+        <b-table-column field="owner" label="Owner" centered>
+          <p class="text-center">{{ scraper_data.owner }}</p>
         </b-table-column>
 
         <b-table-column label="Results" centered>
@@ -50,17 +66,18 @@
             >
               results
             </b-button>
-            <b-button
-              @click="() => deleteScraper(scraper_data.id)"
-              size="is-small"
-              rounded
-              outlined
-              type="is-danger"
-            >
-              DELETE
-            </b-button>
-           
           </div>
+        </b-table-column>
+        <b-table-column centered>
+          <b-button
+            @click="() => deleteScraper(scraper_data.id)"
+            size="is-small"
+            rounded
+            outlined
+            type="is-danger"
+          >
+            DELETE
+          </b-button>
         </b-table-column>
       </b-table>
     </div>
@@ -70,6 +87,7 @@
 <script>
 import { mapGetters } from "vuex";
 import axios from "axios";
+import { saveAs } from "file-saver";
 export default {
   name: "OverviewOverlay",
 
@@ -82,9 +100,6 @@ export default {
       default: null,
       required: true,
     },
-  },
-  mounted() {
-    console.log(this.scraper_data)
   },
 
   methods: {
@@ -101,35 +116,35 @@ export default {
     downloadResults(id) {
       const download_request =
         "https://bosa-inspector-widget.herokuapp.com/scrapers/" +
-        String(id) +
+        id.toString() +
         "/export";
       console.log("this should download the results");
+
       axios
         .get(download_request, {
           headers: {
             Authorization: `Bearer ${this.getAccessToken}`,
           },
+          responseType: "blob",
         })
-        .then(console.log("file was downloaded"));
+        .then((res) => {
+          saveAs(res.data, res.headers["x-filename"]); //file-saver npm package
+        });
     },
-   
   },
-
 };
 </script>
 
 <style scoped>
 .container {
-  max-width: 500px;
   margin: 30px auto;
   overflow: auto;
-  border: 5px solid #2782c6;
-  border-radius: 5px;
   position: relative;
   top: 30px;
 }
 
 .content {
+  min-width: 600px;
   padding: 50px;
   background-color: white;
 }
@@ -137,4 +152,5 @@ export default {
 .alignRight {
   text-align: right;
 }
+
 </style>

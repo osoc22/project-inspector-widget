@@ -41,5 +41,9 @@ export default {
   font-size: 20px;
 }
 
+.panel {
+  height: 660px;
+}
+
 </style>
 

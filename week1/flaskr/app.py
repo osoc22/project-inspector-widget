@@ -10,11 +10,12 @@ except ImportError:
 from werkzeug.security import generate_password_hash, check_password_hash
 from io import BytesIO
 import json
-from datetime import date, datetime, timedelta, timezone, tzinfo
+from flask import send_from_directory
+from datetime import datetime, timedelta, timezone
 import tldextract
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, jwt_required, set_access_cookies
 from flask_jwt_extended import create_refresh_token
-from flask import Response, request, jsonify
+from flask import request, jsonify
 from threading import Thread
 import os
 import queue
@@ -43,6 +44,7 @@ def scraping_queue(ctx):
                          scraper.status = Status.error.value
                     else:
                          scraper.status = Status.done.value
+                         scraper.last_scanned = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     finally:
                          scraper.save_to_db()
                     q.task_done()
@@ -184,27 +186,35 @@ def export_scraper_to_file(id):
      file_object = BytesIO()
 
 
-     with zipfile.ZipFile(file_object, 'w') as zip_file:
+     filename = '%s_%s' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
+
+     with zipfile.ZipFile(f"web/zip/{filename}.zip", 'w') as zip_file:
           csv_output = StringIO()
-          csv_header = ['product name', 'current price', 'reference price', 'date', 'image']
+          csv_header = ['product name', 'current price', 'reference price', 'date', 'product url', 'image']
           csv_writer = csv.writer(csv_output, delimiter=';')
           csv_writer.writerow(csv_header)
           for product in products:
-               csv_writer.writerow([product.name, product.price_current, product.price_reference, product.date, "=HYPERLINK(\"" + product.screenshot.name + '.png' + "\";\"Image\")"])
+               csv_writer.writerow([product.name, product.price_current, product.price_reference, product.date, product.product_url,"=HYPERLINK(\"" + product.screenshot.name + '.png' + "\";\"Image\")"])
                img_buffer = BytesIO(b64decode(product.screenshot.screenshot_file))
                zip_file.writestr(product.screenshot.name + '.png', img_buffer.read())
           csv_output.seek(0)
 
-          zip_file.writestr('results.csv', csv_output.read())
+          zip_file.writestr('results.csv', csv_output.read())  
      
      file_object.seek(0)
-     filename = '%s_%s.zip' % (scraper.name.replace(' ', '_'), scraper.last_scanned.strftime("%Y%m%d-%H%M%S"))
     
-     return Response(
-          file_object,
-          mimetype="application/zip",
-          headers={"Content-disposition":
-                    f"attachment; filename={filename}"})
+     root_dir = os.path.dirname(os.getcwd())
+     
+     try:
+          response = send_from_directory(directory=os.path.join(root_dir, 'flaskr', 'web', 'zip'), path='%s.zip' % filename, filename='%s.zip' % filename)
+          response.headers["x-filename"] = filename
+          response.headers["Access-Control-Expose-Headers"] = 'x-filename'
+
+          return response
+     except BaseException as err:
+          print(err)
+          return json.dumps({'success': False, 'messsage': f"Unexpected {err=}, {type(err)=}"}), 500, {'ContentType':'application/json'}
+    
 
 @app.route('/products', methods=["POST"]) # This endpoint will be called inside scraper, change name of route
 def add_products():
@@ -297,7 +307,6 @@ def login_user():
 
        
      if check_password_hash(user.password, data["password"]):
-           # create a new token with the user public id
           access_token = create_access_token(identity=user.public_id, fresh=True)
           refresh_token = create_refresh_token(identity=user.public_id)
           user.authenticated = True

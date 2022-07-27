@@ -53,6 +53,7 @@
       trap-focus
       :destroy-on-hide="false"
       :on-cancel="closeOverview"
+      
     >
       <overview-overlay :scraper_data="selected_scraper" />
     </b-modal>
@@ -128,4 +129,7 @@ export default {
   cursor: pointer;
   outline: inherit;
 }
+
+
+
 </style>
