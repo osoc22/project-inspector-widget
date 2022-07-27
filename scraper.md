@@ -107,6 +107,12 @@ As you can see, you're pretty much free to do whatever you want in the scraping 
 
 If your scraper has to click on multiple "next page" button, you can check the x2o scraper to get some inspiration on how we managed it.
 
+Now, all you need to do is to modify the main method, adding your scraper after the last elif, to use your custom scraper for your custom url
+```python
+elif('customscraper.be' in url):
+        scraper = await CustomScraper.create(context, url)
+```
+
 ## Finding selectors in a webshop page
 First, make yourself confortable with this documentation [CSS Selectors](https://www.w3schools.com/cssref/css_selectors.asp) and with the [Pyppeteer API](https://pyppeteer.github.io/pyppeteer/reference.html) as it will be heavly used to find out how to select the fields containing the informations we need to extract.
 
