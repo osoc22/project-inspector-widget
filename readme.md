@@ -4,13 +4,20 @@
   <img src="https://osoc.be/editions/2022/projects/inspector-widget.svg" width="250px" />
 </div>
 
-## What is Inspector Widget? 👀 
+This repo contains the website and some documentaion for the Inspector Widget project.
+If you want to find out more about the project, take a look at the [GitHub pages](https://osoc22.github.io/project-inspector-widget) website.
 
+## What is Inspector Widget? 👀 
 Explain.
 
 ## Inspector Widget: Meet the team 👨‍👩‍👦‍👦
 
-Explain.
+Code: Victor Vansteenkiste, Arthur Coenen and Tischa Nyanguile
+
+Communication: Camilla Frison
+
+Coaches: Chris Leroy, Bavo Lodewyckx, Miel Van Opstal
+
 
 ## Branches 🌲
 
@@ -18,9 +25,6 @@ See master branch: https://github.com/osoc22/project-inspector-widget
 
 See gh-pages branch: https://github.com/osoc22/project-inspector-widget/tree/gh-pages
 
-
-This repo contains the website and some documentaion for the Inspector Widget project.
-If you want to find out more about the project, take a look at the [GitHub pages](https://osoc22.github.io/project-inspector-widget) website.
 
 ## Demo ⚡️
 Online demo: https://inspector-widget.netlify.app/
@@ -54,7 +58,7 @@ You can reach out to us via Github disscussions.
 If you want to say thank you or/and support active development of our application:
 
 * Add a GitHub Star to the project
-* Write interesting articles about project on Medium
+* Write interesting articles about the project on Medium
 
 ## Copyright ©️
 Copyright © Inspector Widget 2022
