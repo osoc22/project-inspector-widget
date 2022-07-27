@@ -45,10 +45,11 @@ Online demo: https://inspector-widget.netlify.app/
 
 ## Built With 🏗️
 
-This section contains the major frameworks used to create our project.
+The frameworks used to create our project:
 
-* [![Vue][Vue.js]][Vue-url]
-* Flask
+[![Vue][Vue.js]][Vue-url]
+
+[![Flask][Flask]][Flask-url]
 
 ## See articles 📝
 Medium: [A tool to support honest online shopping](https://medium.com/@camillafrison9/a-tool-to-support-honest-online-shopping-41977cedeb61)
@@ -68,3 +69,9 @@ Let's make a bigger impact by scraping more websites.
 
 ## Copyright ©️
 Copyright © Inspector Widget 2022
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
+[Vue-url]: https://vuejs.org
+[Flask]: https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white
+[Flask-url]: https://flask.palletsprojects.com/en/2.1.x
