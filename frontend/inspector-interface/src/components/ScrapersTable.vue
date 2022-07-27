@@ -90,7 +90,7 @@ export default {
 
         downloadResults(id) {
             const download_request =
-                'https://bosa-inspector-widget.herokuapp.com/scrapers/' +
+                'http://161.35.150.132:8500/scrapers/' +
                 id.toString() +
                 '/export'
             console.log('this should download the results')
@@ -119,7 +119,7 @@ export default {
     created() {
         console.log(this.getAccessToken)
         axios
-            .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
+            .get('http://161.35.150.132:8500/scrapers/user', {
                 headers: {
                     Authorization: `Bearer ${this.getAccessToken}`,
                 },

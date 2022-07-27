@@ -77,7 +77,7 @@ export default {
         startScraper() {
             axios
                 .post(
-                    'https://bosa-inspector-widget.herokuapp.com/scrapers',
+                    'http://161.35.150.132:8500/scrapers',
                     {
                         name: this.name,
                         start_date: this.start_date,
@@ -94,7 +94,7 @@ export default {
                 .then(console.log('scraper has been added'))
 
             axios
-                .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
+                .get('http://161.35.150.132:8500/scrapers/user', {
                     headers: {
                         Authorization: `Bearer ${this.getAccessToken}`,
                     },
@@ -107,7 +107,7 @@ export default {
 
         updateData() {
             axios
-                .get('https://bosa-inspector-widget.herokuapp.com/scrapers/user', {
+                .get('http://161.35.150.132:8500/scrapers/user', {
                     headers: {
                         Authorization: `Bearer ${this.getAccessToken}`,
                     },
