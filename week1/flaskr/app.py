@@ -167,7 +167,7 @@ def get_scraper_results(id):
 @app.route('/check-queue')
 def check_queue():
      for scraper in Scraper.find_all():
-          if scraper.status is not Status.inqueue.value and scraper.start_date < datetime.utcnow() and scraper.end_date > datetime.utcnow() and (scraper.last_scanned + timedelta(minutes=5)) < datetime.utcnow():
+          if scraper.status is not Status.inqueue.value and scraper.start_date < datetime.utcnow() and scraper.end_date > datetime.utcnow() and (scraper.last_scanned + timedelta(hours=20)) < datetime.utcnow():
                scraper.status = Status.inqueue.value
                scraper.save_to_db()
                q.put(scraper.id)
