@@ -11,7 +11,7 @@ ENV FLASK_APP=app.py
 ENV FLASK_ENV=development
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-RUN apt-get update && apt-get install curl gnupg -y \
+RUN apt-get update && apt-get install curl cron gnupg -y \
   && curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && apt-get update \
@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install curl gnupg -y \
   && apt-get install -f \
   && rm -rf /var/lib/apt/lists/*
 
-
+RUN crontab -l | { cat; echo "*/5 * * * * curl http://localhost:8500/check-queue"; } | crontab -
+RUN cron
 # install dependencies
 COPY requirements.txt requirements.txt
 

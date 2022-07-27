@@ -17,8 +17,8 @@ const beforeEnter = (to, from, next) => {
   const isLoggedIn = store.state.access_token;
 
   if (isLoggedIn !== null) {
-    if (to.name.startsWith('sign')) {
-      next({ name: 'dashboard' });
+    if (['home', 'signin', 'signup'].includes(to.name)) {
+            next({ name: 'dashboard' });
     } else {
       next();
     }
@@ -108,13 +108,13 @@ const store = createStore({
       state.end_date = input;
     },
     SET_URL(state, input) {
-      state.url = input.target.value;
+      state.url = input;
     },
     SET_DATA(state, input) {
       state.data = input;
     },
     SET_NAME(state, input) {
-      state.name = input.target.value;
+      state.name = input;
     },
     SET_OVERVIEW(state, input) {
       state.overview = input;
@@ -126,6 +126,14 @@ const store = createStore({
       state.refresh_token = input;
     },
   },
+  actions: {
+    disconnect(context) {
+      context.commit('SET_ACCESS_TOKEN', null)
+      context.commit('SET_REFRESH_TOKEN', null)
+      router.push({name: 'home'})
+
+    }
+  }
 });
 
 Vue.prototype.$store = store;

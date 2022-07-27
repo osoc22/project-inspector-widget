@@ -1,6 +1,6 @@
 <template>
   <b-field label="Insert Link">
-    <b-input @blur="saveLink" />
+    <b-input @input="saveLink" />
   </b-field>
 </template>
 
