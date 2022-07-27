@@ -51,7 +51,7 @@ You will need to inherit from the GenericScraper class and create a new class fo
 ```python
 class CustomScraper(GenericScraper):
 ```
-### Redefine the GenericScraper create method
+### Redefine the GenericScraper methods
 You will now need to redefine the methods of the GenericScraper classes like so
 ```python
 class CustomScraper(GenericScraper):
