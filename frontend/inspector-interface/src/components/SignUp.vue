@@ -67,7 +67,7 @@ export default {
                 .post('https://api.inspector-widget.osoc.be:8500/register', body)
                 .then(() => {
                     this.confirmed = true
-                    this.$router.push('/login')
+                    this.$router.push('/signin')
                 })
                 .catch(() => {
                     this.error = true
