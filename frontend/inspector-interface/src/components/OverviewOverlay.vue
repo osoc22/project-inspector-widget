@@ -111,7 +111,7 @@ export default {
         ...mapMutations(['SET_DATA']),
         deleteScraper(id) {
             const delete_request =
-                'http://161.35.150.132:8500/scrapers/' + id.toString()
+                'https://api.inspector-widget.osoc.be:8500/scrapers/' + id.toString()
             console.log('this should delete the scraper')
             axios.delete(delete_request, {
                 headers: {
@@ -119,7 +119,7 @@ export default {
                 },
             })
             axios
-                .get('http://161.35.150.132:8500/scrapers/user', {
+                .get('https://api.inspector-widget.osoc.be:8500/scrapers/user', {
                     headers: {
                         Authorization: `Bearer ${this.getAccessToken}`,
                     },
@@ -131,7 +131,7 @@ export default {
         },
         downloadResults(id) {
             const download_request =
-                'http://161.35.150.132:8500/scrapers/' +
+                'https://api.inspector-widget.osoc.be:8500/scrapers/' +
                 id.toString() +
                 '/export'
             console.log('this should download the results')

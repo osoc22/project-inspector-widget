@@ -64,7 +64,7 @@ export default {
                 password: this.password,
             }
             axios
-                .post('http://161.35.150.132:8500/register', body)
+                .post('https://api.inspector-widget.osoc.be:8500/register', body)
                 .then(() => {
                     this.confirmed = true
                     this.$router.push('/login')

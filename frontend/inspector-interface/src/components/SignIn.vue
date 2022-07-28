@@ -53,7 +53,7 @@ export default {
                 password: this.password,
             }
             axios
-                .post('https://bosa-inspector-widget.herokuapp.com/login', body)
+                .post('https://api.inspector-widget.osoc.be:8500/login', body)
                 .then((user_res) => {
                     this.SET_ACCESS_TOKEN(user_res.data.access_token)
                     this.SET_REFRESH_TOKEN(user_res.data.refresh_token)

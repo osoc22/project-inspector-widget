@@ -90,7 +90,7 @@ export default {
 
         downloadResults(id) {
             const download_request =
-                'http://161.35.150.132:8500/scrapers/' +
+                'https://api.inspector-widget.osoc.be:8500/scrapers/' +
                 id.toString() +
                 '/export'
             console.log('this should download the results')
@@ -119,7 +119,7 @@ export default {
     created() {
         console.log(this.getAccessToken)
         axios
-            .get('http://161.35.150.132:8500/scrapers/user', {
+            .get('https://api.inspector-widget.osoc.be:8500/scrapers/user', {
                 headers: {
                     Authorization: `Bearer ${this.getAccessToken}`,
                 },
